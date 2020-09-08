@@ -3,11 +3,21 @@ name: scopyon
 conda_env: conda.yaml
 
 entry_points:
+  step1:
+    parameters:
+      seed: {type: int, default: 123}
+    command: "python step1.py {seed}"
+
+  step2:
+    parameters:
+      inputval1: {type: int, default: 24}
+    command: "python step2.py {inputval1}"
+  step3:
+    parameters:
+      step3inputval1: {type: int, default: 3}
+    command: "python step3.py {step3inputval1}"
   main:
     parameters:
       seed: {type: int, default: 123}
-      N: {type: int, default: 1000}
-      magnification: {type: str, default: '360'}
-      exposure_time: {type: str, default: '0.033'}
-    command: "python testsuite1.py {seed} {N} {magnification} {exposure_time}"
+    command: "python allsteps.py {seed}"
     
