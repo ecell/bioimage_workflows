@@ -19,7 +19,7 @@ entry_points:
     parameters:
       seed: {type: int, default: 123}
       N: {type: int, default: 1000}
-      magnification: {type: int, default: '360'}
-      exposure_time: {type: float, default: '0.033'}
+      magnification: {type: int, default: 360}
+      exposure_time: {type: float, default: 0.033}
     command: "python main.py {seed} {N} {magnification} {exposure_time}"
     
