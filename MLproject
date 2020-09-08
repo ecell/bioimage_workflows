@@ -5,8 +5,10 @@ conda_env: conda.yaml
 entry_points:
   generation:
     parameters:
-      image_path: path
-    command: "python generation.py {image_path}"
+      seed: {type: int, default: 123}
+      magnification: {type: int, default: 360}
+      exposure_time: {type: float, default: 0.033}
+    command: "python generation.py {seed} {magnification} {exposure_time}"
   analysis1:
     parameters:
       generated_images: path
@@ -18,8 +20,7 @@ entry_points:
   main:
     parameters:
       seed: {type: int, default: 123}
-      N: {type: int, default: 1000}
       magnification: {type: int, default: 360}
       exposure_time: {type: float, default: 0.033}
-    command: "python main.py {seed} {N} {magnification} {exposure_time}"
+    command: "python main.py {seed} {magnification} {exposure_time}"
     
