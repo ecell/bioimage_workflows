@@ -39,6 +39,8 @@ with mlflow.start_run():
     print(inputval1)
     print(doubledinput)
     print(sub3)
+    print(type(submitted_run_step2))
+    print(type(step2))
     # log    
     mlflow.log_param("seed", seed)
 
