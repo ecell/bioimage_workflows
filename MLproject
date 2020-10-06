@@ -16,6 +16,13 @@ entry_points:
     parameters:
       step3inputval1: {type: int, default: 3}
     command: "python step3.py {step3inputval1}"
+  #
+  exec_step2_and_step3:
+    parameters:
+      inputval1: {type: int, default: 24}
+    command: "python exec_step2_and_step3.py {inputval1}"
+  
+  #
   main:
     parameters:
       seed: {type: int, default: 123}
