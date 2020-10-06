@@ -23,6 +23,11 @@ entry_points:
     command: "python exec_step2_and_step3.py {inputval1}"
   
   #
+  inspectrun:
+    parameters:
+      runid: {type: string, default: 123}
+    command: "python inspectrun.py {runid}"
+  #
   main:
     parameters:
       seed: {type: int, default: 123}
