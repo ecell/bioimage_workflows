@@ -94,5 +94,5 @@ for i in range(num_samples):
 
 #!ls ./artifacts
 
-log_artifacts(runid, artifactsPath)
+log_artifacts("/tmp/20c598a161224acba98be86a47ee2357/artifacts/")
 mlflow.end_run()
