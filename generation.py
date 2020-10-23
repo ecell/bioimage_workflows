@@ -66,7 +66,9 @@ ndim = 2
 
 import pathlib
 runid = foo.info.run_id
+
 artifactsPath = tempfile.mkdtemp() + "/artifacts"
+
 artifacts = pathlib.Path(artifactsPath)
 artifacts.mkdir(parents=True, exist_ok=True)
 config.save(artifacts / 'config.yaml')
