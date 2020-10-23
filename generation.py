@@ -99,5 +99,4 @@ print('artifact uri:', mlflow.get_artifact_uri())
 server_uri = "http://127.0.0.1:5000"
 mlflow.set_tracking_uri(server_uri)
 log_artifacts("/tmp/20c598a161224acba98be86a47ee2357/artifacts/", artifact_path="file:///home/azureuser/hoge")
-file:/
 mlflow.end_run()
