@@ -66,7 +66,8 @@ ndim = 2
 
 import pathlib
 runid = foo.info.run_id
-artifactsPath = "/tmp/" + str(runid) + "/artifacts"
+# artifactsPath = "/tmp/" + str(runid) + "/artifacts"
+artifactsPath = "/home/azureuser/" + str(runid) + "/artifacts"
 artifacts = pathlib.Path(artifactsPath)
 artifacts.mkdir(parents=True, exist_ok=True)
 log_param("artifactsPath", artifactsPath)
@@ -94,9 +95,11 @@ for i in range(num_samples):
 
 #!ls ./artifacts
 
-print('tracking uri:', mlflow.get_tracking_uri())
-print('artifact uri:', mlflow.get_artifact_uri())
-server_uri = "http://127.0.0.1:5000"
-mlflow.set_tracking_uri(server_uri)
-log_artifacts("/tmp/20c598a161224acba98be86a47ee2357/artifacts/", artifact_path="file:/home/azureuser/hoge")
+log_artifacts(artifactsPath)
+
+# print('tracking uri:', mlflow.get_tracking_uri())
+# print('artifact uri:', mlflow.get_artifact_uri())
+# server_uri = "http://127.0.0.1:5000"
+# mlflow.set_tracking_uri(server_uri)
+# log_artifacts("/tmp/20c598a161224acba98be86a47ee2357/artifacts/", artifact_path="file:/home/azureuser/hoge")
 mlflow.end_run()
