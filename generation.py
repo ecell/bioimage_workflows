@@ -67,7 +67,7 @@ ndim = 2
 import pathlib
 runid = foo.info.run_id
 # artifactsPath = "/tmp/" + str(runid) + "/artifacts"
-artifactsPath = "/home/azureuser/" + str(runid)
+artifactsPath = "~/" + str(runid)
 artifacts = pathlib.Path(artifactsPath)
 artifacts.mkdir(parents=True, exist_ok=True)
 config.save(artifacts / 'config.yaml')
