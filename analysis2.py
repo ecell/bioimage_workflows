@@ -36,12 +36,12 @@ log_param("seed", seed)
 log_param("threshold", threshold)
 
 import pathlib
-inputpath = pathlib.Path("generated_data")
-artifacts = pathlib.Path("generated_data")
+inputpath = pathlib.Path(generated_data)
+artifacts = pathlib.Path(generated_data)
 artifacts.mkdir(parents=True, exist_ok=True)
 
 import scopyon
-config = scopyon.Configuration(filename=inputpath / "config.yaml")
+config = scopyon.Configuration(filename= inputpath / "config.yaml")
 pixel_length = config.default.detector.pixel_length / config.default.magnification
 
 import numpy
