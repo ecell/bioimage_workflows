@@ -67,7 +67,7 @@ ndim = 2
 import pathlib
 runid = foo.info.run_id
 # artifactsPath = "/tmp/" + str(runid) + "/artifacts"
-artifactsPath = "/home/azureuser/" + str(runid) + "/artifacts"
+artifactsPath = "/home/azureuser/" + str(runid)
 artifacts = pathlib.Path(artifactsPath)
 artifacts.mkdir(parents=True, exist_ok=True)
 log_param("artifactsPath", artifactsPath)
@@ -95,7 +95,7 @@ for i in range(num_samples):
 
 #!ls ./artifacts
 
-log_artifacts(artifactsPath)
+log_artifacts(str(runid))
 
 # print('tracking uri:', mlflow.get_tracking_uri())
 # print('artifact uri:', mlflow.get_artifact_uri())
