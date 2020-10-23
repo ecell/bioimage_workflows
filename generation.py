@@ -94,5 +94,5 @@ for i in range(num_samples):
 
 #!ls ./artifacts
 
-log_artifacts(artifacts)
+log_artifacts(artifactsPath, artifact_path="foobarhoge")
 mlflow.end_run()
