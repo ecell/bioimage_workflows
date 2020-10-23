@@ -107,7 +107,7 @@ with mlflow.start_run(run_name="main", nested=True) as active_run:
 
 #     #log_artifacts("./artifacts")
     # evaluation1
-    evaluation1_run = _get_or_run("evaluation1", {"threshold":threshold, "num_samples":num_samples, "num_frames":num_frames}, git_commit)
+    evaluation1_run = _get_or_run("evaluation1", {"generated_data":artifactsPath, "threshold":threshold, "num_samples":num_samples, "num_frames":num_frames}, git_commit)
     #evaluation1_run = mlflow.run(".", "evaluation1", parameters={"threshold":threshold, "num_samples":num_samples})
     
     log_metric("x_mean", float(evaluation1_run.data.metrics["x_mean"]))
