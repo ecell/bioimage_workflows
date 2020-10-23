@@ -102,7 +102,7 @@ with mlflow.start_run(run_name="main", nested=True) as active_run:
     analysis1_run = _get_or_run("analysis1", {"generated_data":artifactsPath, "threshold":threshold, "min_sigma":min_sigma, "num_samples":num_samples, "num_frames":num_frames}, git_commit)
     #analysis1_run = mlflow.run(".", "analysis1", parameters={"threshold":threshold, "num_samples":num_samples})
     # analysis2
-    analysis2_run = _get_or_run("analysis2", {"threshold":threshold, "num_samples":num_samples, "num_frames":num_frames}, git_commit)
+    analysis2_run = _get_or_run("analysis2", {"generated_data":artifactsPath, "threshold":threshold, "num_samples":num_samples, "num_frames":num_frames}, git_commit)
     #analysis2_run = mlflow.run(".", "analysis2", parameters={"threshold":threshold, "num_samples":num_samples})
 
 #     #log_artifacts("./artifacts")
