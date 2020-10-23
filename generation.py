@@ -10,7 +10,7 @@ Original file is located at
 !pip install git+https://github.com/ecell/scopyon
 !pip freeze | grep scopyon
 """
-
+import tempfile
 import argparse
 
 """Prepare for generating inputs."""
@@ -66,8 +66,9 @@ ndim = 2
 
 import pathlib
 runid = foo.info.run_id
-# artifactsPath = "/tmp/" + str(runid) + "/artifacts"
-artifactsPath = "~/" + str(runid)
+
+artifactsPath = tempfile.mkdtemp() + "/artifacts"
+
 artifacts = pathlib.Path(artifactsPath)
 artifacts.mkdir(parents=True, exist_ok=True)
 config.save(artifacts / 'config.yaml')
@@ -93,7 +94,5 @@ for i in range(num_samples):
 
 #!ls ./artifacts
 
-server_uri = "http://127.0.0.1:5000"
-mlflow.set_tracking_uri(server_uri)
 log_artifacts(artifactsPath)
 mlflow.end_run()
