@@ -8,7 +8,7 @@ from mlflow import log_metric, log_param, log_artifacts
 from mlflow_utils import _get_or_run
 
 entrypoint = "main"
-parser = argparse.ArgumentParser(description='analysis1 step')
+parser = argparse.ArgumentParser(description='main step')
 parser.add_argument('--threshold', type=float, default=50.0)
 parser.add_argument('--min_sigma', type=int, default=1)
 parser.add_argument('--num_samples', type=int, default=1)
