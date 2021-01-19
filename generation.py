@@ -77,7 +77,7 @@ for i in range(num_samples):
 
 #XXX: THERE
 
-log_artifacts(str(artifacts))
+log_artifacts(str(artifacts), artifact_path="")
 mlflow.end_run()
 
 import shutil
