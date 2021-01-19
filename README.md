@@ -1,5 +1,9 @@
 # bioimage_workflows
 
+## System Requirements
+
+- Ubuntu Linux 18.04 (This workflow does not work in WSL2 environment due to the uniqueness of the file system)
+
 ## How to run this workflow
 
 1. Install [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
