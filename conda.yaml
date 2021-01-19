@@ -17,3 +17,4 @@ dependencies:
     - mlflow>=1.0
     - kaleido
     - azure-storage-blob
+    - boto3
