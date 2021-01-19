@@ -21,7 +21,7 @@ num_samples = args.num_samples
 num_frames = args.num_frames
 
 with mlflow.start_run(nested=True) as active_run:
-    git_commit = active_run.data.tags.get("mlflow.source.git.branch")
+    git_commit = active_run.data.tags.get("mlflow.source.git.commit")
     mlflow.set_tag("mlflow.runName", entrypoint)
     for key, value in vars(args).items():
         log_param(key, value)
