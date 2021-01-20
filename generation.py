@@ -4,6 +4,11 @@ import pathlib
 import mlflow
 from mlflow import log_metric, log_param, log_artifacts
 
+from mlflow_utils import _is_existing_run
+from mlflow.tracking.context.git_context import _get_git_commit
+
+import sys
+
 entrypoint = "generation"
 parser = argparse.ArgumentParser(description='generation step')
 parser.add_argument('--seed', type=int, default=123)
@@ -13,14 +18,19 @@ parser.add_argument('--num_frames', type=int, default=5)
 parser.add_argument('--exposure_time', type=float, default=0.033)
 args = parser.parse_args()
 
-active_run = mlflow.start_run()
-mlflow.set_tag("mlflow.runName", entrypoint)
-
 seed = args.seed
 interval = args.interval
 num_samples = args.num_samples
 num_frames = args.num_frames
 exposure_time = args.exposure_time
+
+
+git_commit = _get_git_commit(".")
+if _is_existing_run("generation", {"num_samples": num_samples, "num_frames": num_frames}, git_commit):
+    sys.exit(0) 
+
+active_run = mlflow.start_run()
+mlflow.set_tag("mlflow.runName", entrypoint)
 
 Nm = [100, 100, 100]
 Dm = [0.222e-12, 0.032e-12, 0.008e-12]

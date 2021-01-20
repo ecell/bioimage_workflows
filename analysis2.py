@@ -4,6 +4,11 @@ import pathlib
 import mlflow
 from mlflow import log_metric, log_param, log_artifacts
 
+from mlflow_utils import _is_existing_run
+from mlflow.tracking.context.git_context import _get_git_commit
+
+import sys
+
 entrypoint = "analysis2"
 parser = argparse.ArgumentParser(description='analysis2 step')
 parser.add_argument('--generation', type=str, default="")
@@ -12,13 +17,17 @@ parser.add_argument('--seed', type=int, default=123)
 parser.add_argument('--max_distance', type=float, default=50.0)
 args = parser.parse_args()
 
-active_run = mlflow.start_run()
-mlflow.set_tag("mlflow.runName", entrypoint)
-
 generation = args.generation
 analysis1 = args.analysis1
 seed = args.seed
 max_distance = args.max_distance
+
+git_commit = _get_git_commit(".")
+if _is_existing_run("analysis2", {"generation": generation, "analysis1": analysis1}, git_commit):
+    sys.exit(0) 
+
+active_run = mlflow.start_run()
+mlflow.set_tag("mlflow.runName", entrypoint)
 
 for key, value in vars(args).items():
     log_param(key, value)
