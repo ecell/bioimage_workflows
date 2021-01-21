@@ -43,4 +43,8 @@ If you want to execute `myexperiment1` in experiment, command is following
 
 `mlflow run -e analysis1 https://github.com/ecell/bioimage_workflows.git -P num_samples=1 -P num_frames=5 --experiment-name "myexperiment1"`
 
+## How to run with specific git commit id
 
+If you want to execute git commit id `"40b29386"`, command is following
+
+`mlflow run -e analysis1 https://github.com/ecell/bioimage_workflows.git -P num_samples=1 -P num_frames=5 --experiment-name "myexperiment1" --version "40b29386"`
