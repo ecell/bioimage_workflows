@@ -23,7 +23,7 @@ seed = args.seed
 max_distance = args.max_distance
 
 git_commit = _get_git_commit(".")
-if _is_existing_run("analysis2", {"generation": generation, "analysis1": analysis1}, git_commit):
+if _is_existing_run("analysis2", {"generation": generation, "analysis1": analysis1, "max_distance": max_distance}, git_commit):
     sys.exit(0) 
 
 active_run = mlflow.start_run()
