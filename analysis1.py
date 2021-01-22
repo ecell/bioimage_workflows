@@ -4,6 +4,11 @@ import pathlib
 import mlflow
 from mlflow import log_metric, log_param, log_artifacts
 
+from mlflow_utils import _is_existing_run
+from mlflow.tracking.context.git_context import _get_git_commit
+
+import sys
+
 entrypoint = "analysis1"
 parser = argparse.ArgumentParser(description='analysis1 step')
 parser.add_argument('--generation', type=str, default="")
@@ -13,14 +18,19 @@ parser.add_argument('--threshold', type=float, default=50.0)
 parser.add_argument('--overlap', type=float, default=0.5)
 args = parser.parse_args()
 
-active_run = mlflow.start_run()
-mlflow.set_tag("mlflow.runName", entrypoint)
-
 generation = args.generation
 min_sigma = args.min_sigma
 max_sigma = args.max_sigma
 threshold = args.threshold
 overlap = args.overlap
+
+git_commit = _get_git_commit(".")
+if _is_existing_run("analysis1", {"generation": generation, "threshold": threshold, "min_sigma": min_sigma}, git_commit):
+    sys.exit(0) 
+
+active_run = mlflow.start_run()
+mlflow.set_tag("mlflow.runName", entrypoint)
+#mlflow.tracking.MlflowClient().set_tag(run_id, "mlflow.runName", "run_name")
 
 for key, value in vars(args).items():
     log_param(key, value)

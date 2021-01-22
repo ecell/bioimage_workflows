@@ -28,6 +28,12 @@ entry_points:
       generation: {type: string, default: ""}
       analysis1: {type: string, default: ""}
     command: "python evaluation1.py --generation {generation} --analysis1 {analysis1}"
+  analysis12_evaluation1:
+    parameters:
+      generation: {type: string, default: ""}
+      threshold: {type: float, default: 50.0}
+      max_distance: {type: float, default: 50.0}
+    command: "python analysis12_evaluation1.py --generation {generation} --threshold {threshold} --max_distance {max_distance}"
   main:
     parameters:
       num_samples: {type: int, default: 1}
