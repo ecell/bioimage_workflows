@@ -2,7 +2,7 @@ import argparse
 import pathlib
 
 import mlflow
-from mlflow import log_metric, log_param, log_artifacts
+from mlflow import log_param, log_artifacts
 
 entrypoint = "generation"
 parser = argparse.ArgumentParser(description='generation step')
