@@ -1,21 +1,3 @@
-import argparse
-import pathlib
-
-import mlflow
-from mlflow import log_param, log_artifacts
-
-entrypoint = "generation"
-parser = argparse.ArgumentParser(description='generation step')
-parser.add_argument('--seed', type=int, default=123)
-parser.add_argument('--interval', type=float, default=33e-3)
-parser.add_argument('--num_samples', type=int, default=1)
-parser.add_argument('--num_frames', type=int, default=5)
-parser.add_argument('--exposure_time', type=float, default=0.033)
-args = parser.parse_args()
-
-active_run = mlflow.start_run()
-mlflow.set_tag("mlflow.runName", entrypoint)
-
 seed = args.seed
 interval = args.interval
 num_samples = args.num_samples
@@ -74,11 +56,3 @@ for i in range(num_samples):
         true_data.extend([t, key] + list(value) for key, value in infodict['true_data'].items())
     true_data = numpy.array(true_data)
     numpy.save(artifacts / f"true_data{i:03d}.npy", true_data)
-
-#XXX: THERE
-
-log_artifacts(str(artifacts), artifact_path="")
-mlflow.end_run()
-
-import shutil
-shutil.rmtree(str(artifacts))

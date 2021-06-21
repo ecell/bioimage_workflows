@@ -28,8 +28,8 @@ generation_run = client.get_run(generation)
 num_samples = int(generation_run.data.params["num_samples"])
 analysis1_run = client.get_run(analysis1)
 # analysis2_run = client.get_run(analysis2)
-generation_artifacts = pathlib.Path(client.download_artifacts(generation, "."))
-analysis1_artifacts = pathlib.Path(client.download_artifacts(analysis1, "."))
+generation_artifacts = pathlib.Path(client.download_artifacts(generation, ""))
+analysis1_artifacts = pathlib.Path(client.download_artifacts(analysis1, ""))
 # analysis2_artifacts = pathlib.Path(client.download_artifacts(analysis2, "."))
 
 import tempfile
@@ -137,7 +137,7 @@ log_metric("missing", missing)
 
 #XXX: THERE
 
-log_artifacts(str(artifacts))
+log_artifacts(str(artifacts),"")
 mlflow.end_run()
 
 import shutil

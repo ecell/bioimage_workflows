@@ -29,8 +29,8 @@ analysis1_run = client.get_run(analysis1)
 num_samples = int(generation_run.data.params["num_samples"])
 num_frames = int(generation_run.data.params["num_frames"])
 interval = float(generation_run.data.params["interval"])
-generation_artifacts = pathlib.Path(client.download_artifacts(generation, "."))
-analysis1_artifacts = pathlib.Path(client.download_artifacts(analysis1, "."))
+generation_artifacts = pathlib.Path(client.download_artifacts(generation, ""))
+analysis1_artifacts = pathlib.Path(client.download_artifacts(analysis1, ""))
 
 import tempfile
 artifacts = pathlib.Path(tempfile.mkdtemp()) / "artifacts"
@@ -137,7 +137,7 @@ fig.write_image(str(artifacts / "histogram2.png"))
 
 #XXX: THERE
 
-log_artifacts(str(artifacts))
+log_artifacts(str(artifacts),"")
 mlflow.end_run()
 
 import shutil

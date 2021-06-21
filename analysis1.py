@@ -30,7 +30,7 @@ generation_run = client.get_run(generation)
 num_samples = int(generation_run.data.params["num_samples"])
 num_frames = int(generation_run.data.params["num_frames"])
 interval = float(generation_run.data.params["interval"])
-generation_artifacts = pathlib.Path(client.download_artifacts(generation, "."))
+generation_artifacts = pathlib.Path(client.download_artifacts(generation,""))
 
 import tempfile
 artifacts = pathlib.Path(tempfile.mkdtemp()) / "artifacts"
@@ -72,7 +72,7 @@ warnings.resetwarnings()
 
 #XXX: THERE
 
-log_artifacts(str(artifacts))
+log_artifacts(str(artifacts),"")
 mlflow.end_run()
 
 import shutil
