@@ -1,0 +1,36 @@
+# you can write comment
+
+title = "scopyon"
+
+[generation]
+  [inputs]
+  num_samples = 1
+  num_frame = 5
+  exposure_time = 0.033
+  [outputs]
+  artifacts = "./artifacts"
+
+[analysis1]
+  [inputs]
+  generation = "./artifacts"
+  max_sigma = 4
+  min_sigma = 1
+  threshold = 50.0
+  overlap = 0.5
+  [outputs]
+  artifacts = "./artifacts"
+
+[analysis2]
+  [inputs]
+  generation = "./artifacts"
+  analysis1 = "./artifacts"
+  max_distance = 50.0
+  [outputs]
+  artifacts = "./artifacts"
+
+[evaluation]
+  [inputs]
+  generation = "./artifacts"
+  analysis1 = "./artifacts"
+  [outputs]
+  artifacts = "./artifacts"
