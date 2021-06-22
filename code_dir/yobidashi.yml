@@ -1,0 +1,7 @@
+- function: "count_letters" # 関数名、特定のフォルダの中のどれかのpythonスクリプトに書いてある
+  input:
+    - filename: "sample.txt"
+    - letter1: "a"
+    - letter2: "e"
+  output:
+    - destination_path: "./output" # ここは保存先のpathを書く
