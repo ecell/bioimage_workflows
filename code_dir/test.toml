@@ -1,0 +1,13 @@
+# you can write comment
+
+title = "scopyon"
+
+[generation]
+  [generation.inputs]
+  seed = 123
+  interval = 0.033
+  num_samples = 1
+  num_frame = 2
+  exposure_time = 0.033
+  [generation.outputs]
+  artifacts = "./artifacts"
