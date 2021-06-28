@@ -9,6 +9,8 @@ jobs:
   pytest:
     name: Run tests with pytest
     runs-on: ubuntu-latest
+    env:
+      working-directory: ./code_dir
     strategy:
       matrix:
         python-version: [3.7, 3.8]
