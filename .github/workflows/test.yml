@@ -9,8 +9,6 @@ jobs:
   pytest:
     name: Run tests with pytest
     runs-on: ubuntu-latest
-    env:
-      working-directory: ./code_dir
     strategy:
       matrix:
         python-version: [3.7, 3.8]
@@ -28,3 +26,4 @@ jobs:
           python3 -m pip install git+git://github.com/ecell/scopyon.git@99436fbfd34bb684966846eba75b206c2806f69c
       - name: Run Tests
         run: pytest test_toml-t.py
+        working-directory: ./code_dir
