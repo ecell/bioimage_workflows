@@ -9,6 +9,7 @@ title = "scopyon"
   num_samples = 1
   num_frame = 2
   exposure_time = 0.033
+  artifacts_pathname = "/home/azureuser/hogehoge"
   [generation.outputs]
   artifacts = "./artifacts"
 
@@ -19,6 +20,7 @@ title = "scopyon"
   min_sigma = 1
   threshold = 50.0
   overlap = 0.5
+  artifacts_pathname = "/home/azureuser/hogehoge"
   [analysis1.outputs]
   artifacts = "./artifacts"
 
