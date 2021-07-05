@@ -1,19 +1,58 @@
 from mlflow import log_metric, log_param, log_artifacts
+import mlflow
+from mlflow.tracking import MlflowClient
 
 from tomlfunc import read_toml, get_inputs
 from workflow import kaizu_generation, kaizu_analysis1
+# 
+client = MlflowClient()
+# from mlflow_utils import _get_or_run
 
 a = get_inputs("./test.toml")
 
-for key, value in a.items():
-    log_param(key, value)
-#output = kaizu_generation(a)
-#print(output)
-#log_artifacts(output.replace("file://", ""))
+# MLFlow の run を開始する
+# ここで、entrypoint名（または、認識できる名前）としてgenerationを渡す。
+# mlflowのrunidを習得できるようにしておく。
+run = None
+with mlflow.start_run(run_name='generation') as run:
+    run = mlflow.active_run()
+    output = kaizu_generation(a)
+    for key, value in a.items():
+        log_param(key, value)
+    print(output)
+    # mlflow tracking serverにput
+    log_artifacts(output.replace("file://", ""))
+    print(run)
 
-for key, value in a.items():
-    log_param(key, value)
+# if run is None:
+#     print("Something wrong at generation")
+# for key, value in a.items():
+#     log_param(key, value)
 
-output = kaizu_analysis1(a)
-log_artifacts(output["artifacts"].replace("file://", ""))
-log_metric("num_spots", output["num_spots"])
+# # さきほど取得しておいた、runidをもとに、artifactsを取得するようにする
+# # 適切なディレクトリに対して
+
+generation_run_id = run.info.run_id
+#generation_run_id = "ee5c4443cdbb4048a14a51ea19d9abc0"
+generation_artifacts_localpath = client.download_artifacts(generation_run_id, ".")
+# # generation_artifacts_path = _get_or_run("analysis1", {"generation": generation_run.info.run_id, "threshold": threshold, "min_sigma": min_sigma}, git_commit)
+
+a["artifacts_pathname"] = generation_artifacts_localpath
+run = None
+with mlflow.start_run(run_name='analysis1') as run:
+    run = mlflow.active_run()
+    output = kaizu_analysis1(a)
+    for key, value in a.items():
+        log_param(key, value)
+    print(output)
+    # mlflow tracking serverにput
+    log_artifacts(output["artifacts"].replace("file://", ""))
+    print(run)
+
+if run is None:
+    print("Something wrong at analysis1")
+
+# log_artifacts(output["artifacts"].replace("file://", ""))
+# ## toml には書いてあってとしても、generationのrun id
+# ## runidから、指定した、フォルダなりファイルを扱うようにする。
+# log_metric("num_spots", output["num_spots"])
