@@ -71,3 +71,54 @@ def kaizu_generation(inputs: dict) -> str:
         numpy.save(artifacts / f"true_data{i:03d}.npy", true_data)
 
     return artifacts.absolute().as_uri()
+
+def kaizu_analysis1(inputs: dict) -> str:
+
+    generation = ""
+    min_sigma = 1
+    max_sigma = 4
+    threshold = 50.0
+    overlap = 0.5
+
+    num_samples = 1
+    num_frames = 2
+    interval = 0.033
+    generation_artifacts = pathlib.Path("/tmp/tmp0j3ulrlj/artifacts")
+
+    import tempfile
+    artifacts = pathlib.Path(tempfile.mkdtemp()) / "artifacts"
+    artifacts.mkdir(parents=True, exist_ok=True)
+
+    #XXX: HERE
+
+    import numpy
+    timepoints = numpy.linspace(0, interval * num_frames, num_frames + 1)
+
+    import scopyon
+
+    import warnings
+    warnings.simplefilter('ignore', RuntimeWarning)
+
+    for i in range(num_samples):
+        imgs = [scopyon.Image(data) for data in numpy.load(generation_artifacts / f"images{i:03d}.npy")]
+        spots = [
+            scopyon.analysis.spot_detection(
+                img.as_array(),
+                min_sigma=min_sigma, max_sigma=max_sigma, threshold=threshold, overlap=overlap)
+            for img in imgs]
+
+        spots_ = []
+        for t, data in zip(timepoints, spots):
+            spots_.extend(([t] + list(row) for row in data))
+        spots_ = numpy.array(spots_)
+        numpy.save(artifacts / f"spots{i:03d}.npy", spots_)
+
+        r = 6
+        shapes = [dict(x=spot[0], y=spot[1], sigma=r, color='red')
+                for spot in spots[0]]
+        imgs[0].save(artifacts / f"spots{i:03d}_000.png", shapes=shapes)
+
+        print("{} spots are detected in {} frames.".format(len(spots_), len(imgs)))
+        #log_metric("num_spots", len(spots_))
+
+    return {"artifacts": artifacts.absolute().as_uri(), "num_spots": len(spots_)}

@@ -11,3 +11,27 @@ title = "scopyon"
   exposure_time = 0.033
   [generation.outputs]
   artifacts = "./artifacts"
+
+[analysis1]
+  [analysis1.inputs]
+  artifacts = "./artifacts"
+  max_sigma = 4
+  min_sigma = 1
+  threshold = 50.0
+  overlap = 0.5
+  [analysis1.outputs]
+  artifacts = "./artifacts"
+
+[analysis2]
+  [analysis2.inputs]
+  artifacts = "./artifacts"
+  max_distance = 50.0
+  [analysis2.outputs]
+  artifacts = "./artifacts"
+
+[evaluation1]
+  [evaluation1.inputs]
+  artifacts = "./artifacts"
+  [evaluation1.outputs]
+  artifacts = "./artifacts"
+  
