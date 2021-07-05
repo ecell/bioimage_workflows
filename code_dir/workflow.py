@@ -28,7 +28,7 @@ def kaizu_generation(inputs: dict) -> str:
     #     log_param(key, value)
 
     import tempfile
-    artifacts = pathlib.Path(tempfile.mkdtemp()) / "artifacts"
+    artifacts = pathlib.Path(inputs["artifacts_pathname"]) / "artifacts"
     artifacts.mkdir(parents=True, exist_ok=True)
 
     #XXX: HERE
@@ -83,10 +83,10 @@ def kaizu_analysis1(inputs: dict) -> str:
     num_samples = 1
     num_frames = 2
     interval = 0.033
-    generation_artifacts = pathlib.Path("/tmp/tmp0j3ulrlj/artifacts")
+    generation_artifacts = pathlib.Path(inputs["artifacts_pathname"]) / "artifacts"
 
     import tempfile
-    artifacts = pathlib.Path(tempfile.mkdtemp()) / "artifacts"
+    artifacts = pathlib.Path(inputs["artifacts_pathname"]) / "artifacts"
     artifacts.mkdir(parents=True, exist_ok=True)
 
     #XXX: HERE
