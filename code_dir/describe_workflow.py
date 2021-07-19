@@ -9,10 +9,11 @@ from function_list import kaizu_generation, kaizu_analysis1, kaizu_analysis2
 client = MlflowClient()
 # from mlflow_utils import _get_or_run
 
-#a = get_inputs("./test.toml")
-gen_inputs = read_toml("./test.toml")["generation"]["inputs"]
-ana1_inputs = read_toml("./test.toml")["analysis1"]["inputs"]
-ana2_inputs = read_toml("./test.toml")["analysis2"]["inputs"]
+tomlpath = "./params.toml"
+
+gen_inputs = read_toml(tomlpath)["generation"]["inputs"]
+ana1_inputs = read_toml(tomlpath)["analysis1"]["inputs"]
+ana2_inputs = read_toml(tomlpath)["analysis2"]["inputs"]
 
 # MLFlow の run を開始する
 # ここで、entrypoint名（または、認識できる名前）としてgenerationを渡す。
