@@ -38,8 +38,10 @@ with mlflow.start_run(run_name='generation') as run:
 ## 適切なディレクトリに対して
 
 generation_run_id = run.info.run_id
+print("generation_run_id=["+generation_run_id+"]")
 #generation_run_id = "ee5c4443cdbb4048a14a51ea19d9abc0"
 generation_artifacts_localpath = client.download_artifacts(generation_run_id, ".")
+print("generation_artifacts_localpath=["+generation_artifacts_localpath+"]")
 # # generation_artifacts_path = _get_or_run("analysis1", {"generation": generation_run.info.run_id, "threshold": threshold, "min_sigma": min_sigma}, git_commit)
 
 #a["artifacts_pathname"] = generation_artifacts_localpath
@@ -64,12 +66,14 @@ if run is None:
 
 #
 analysis1_run_id = run.info.run_id
+print("analysis1_run_id=["+analysis1_run_id+"]")
 analysis1_artifacts_localpath = client.download_artifacts(analysis1_run_id, ".")
+print("analysis1_artifacts_localpath=["+analysis1_artifacts_localpath+"]")
 #a["artifacts_pathname"] = analysis1_artifacts_localpath
 run = None
 with mlflow.start_run(run_name='analysis2') as run:
     run = mlflow.active_run()
-    output = kaizu_analysis2(ana2_inputs)
+    output = kaizu_analysis2(ana2_inputs, generation_artifacts_localpath, analysis1_artifacts_localpath)
     for key, value in ana2_inputs.items():
         log_param(key, value)
     print(output)
