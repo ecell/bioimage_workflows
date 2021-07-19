@@ -6,7 +6,7 @@ cd ~
 python3 -m venv venv-ecell
 source venv-ecell/bin/activate
 pip install -U pip
-pip install mlflow toml 
+pip install mlflow toml scikit-image
 pip install git+git://github.com/ecell/scopyon.git@99436fbfd34bb684966846eba75b206c2806f69c
 ```
 
