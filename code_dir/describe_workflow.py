@@ -4,7 +4,7 @@ from mlflow.tracking import MlflowClient
 
 # from tomlfunc import read_toml, get_inputs
 from tomlfunc import read_toml
-from workflow import kaizu_generation, kaizu_analysis1, kaizu_analysis2
+from function_list import kaizu_generation, kaizu_analysis1, kaizu_analysis2
 #
 client = MlflowClient()
 # from mlflow_utils import _get_or_run
