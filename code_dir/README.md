@@ -2,6 +2,9 @@
 
 ```
 sudo apt install python3-pip python3-venv
+git clone https://github.com/ecell/bioimage_workflows
+cd bioimage_workflows
+git checkout -t origin/nocode
 cd ~
 python3 -m venv venv-ecell
 source venv-ecell/bin/activate
