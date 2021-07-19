@@ -124,7 +124,7 @@ def kaizu_analysis1(inputs: dict) -> str:
 
     return {"artifacts": artifacts.absolute().as_uri(), "num_spots": len(spots_)}
 
-def kaizu_analysis2(inputs: dict) -> str:
+def kaizu_analysis2(inputs: dict, generation_artifacts: str, analysis1_artifacts: str) -> str:
     seed = inputs["seed"]
     max_distance = inputs["max_distance"]
     num_samples = inputs["num_samples"]
@@ -138,7 +138,7 @@ def kaizu_analysis2(inputs: dict) -> str:
     #XXX: HERE
 
     import scopyon
-    config = scopyon.Configuration(filename=generation_artifacts / "config.yaml")
+    config = scopyon.Configuration(filename=generation_artifacts + "/config.yaml")
     pixel_length = config.default.detector.pixel_length / config.default.magnification
 
     import numpy
@@ -167,7 +167,7 @@ def kaizu_analysis2(inputs: dict) -> str:
     lengths = []
     ndim = 2
     for i in range(num_samples):
-        spots_ = numpy.load(analysis1_artifacts / f"spots{i:03d}.npy")
+        spots_ = numpy.load(analysis1_artifacts + "/" + f"spots{i:03d}.npy")
         t = spots_[0, 0]
         spots = [[spots_[0, 1: ]]]
         for row in spots_[1: ]:
