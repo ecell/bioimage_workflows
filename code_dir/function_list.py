@@ -13,8 +13,8 @@ def try_generation():
 def kaizu_generation(inputs: dict) -> str:
     seed = 123
     interval = 0.033
-    num_samples = 1
-    num_frames = 2
+    num_samples = inputs["num_samples"]
+    num_frames = inputs["num_frames"]
     exposure_time = 0.033
 
     Nm = [100, 100, 100]
@@ -81,8 +81,8 @@ def kaizu_analysis1(inputs: dict) -> str:
     threshold = 50.0
     overlap = 0.5
 
-    num_samples = 1
-    num_frames = 2
+    num_samples = inputs["num_samples"]
+    num_frames = inputs["num_frames"]
     interval = 0.033
     generation_artifacts = pathlib.Path("./artifacts")
     
