@@ -235,3 +235,5 @@ def kaizu_analysis2(inputs: dict, generation_artifacts: str, analysis1_artifacts
     fig.write_image(str(artifacts / "histogram2.png"))
 
     #XXX: THERE
+    return {"artifacts": artifacts.absolute().as_uri()}
+
