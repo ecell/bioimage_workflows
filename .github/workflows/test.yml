@@ -1,4 +1,4 @@
-name: pytest
+name: workflow
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       
 jobs:
   pytest:
-    name: Run tests with pytest
+    name: Run image analysis workflow
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -22,8 +22,8 @@ jobs:
       - name: Install Python packages
         run: |
           python3 -m pip install -U pip
-          python3 -m pip install numpy pytest toml
+          python3 -m pip install mlflow toml scikit-image plotly kaleido
           python3 -m pip install git+git://github.com/ecell/scopyon.git@99436fbfd34bb684966846eba75b206c2806f69c
-      - name: Run Tests
-        run: pytest test_toml-t.py
+      - name: Run workflow
+        run: python3 describe_workflow.py
         working-directory: ./code_dir
