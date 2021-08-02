@@ -7,7 +7,9 @@ title = "scopyon"
   seed = 123
   interval = 0.033
   num_samples = 1
-  num_frames = 100
+  # num_frames = 100 
+  # 5 does not guarantee the correctness of the result, but we will use 5 now...
+  num_frames = 5
   exposure_time = 0.033
   [generation.outputs]
   artifacts = "./artifacts"
