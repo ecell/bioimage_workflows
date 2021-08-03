@@ -45,6 +45,12 @@ def _already_ran(run_name, parameters, experiment_id=None):
     eprint("No matching run has been found.")
     return None
 
+expr_name = "azureblob_experiment4"
+azure_blob = "wasbs://<container>@<storage-account>.blob.core.windows.net/<path>"
+
+mlflow.create_experiment(expr_name, azure_blob)
+mlflow.set_experiment(expr_name)
+
 client = MlflowClient()
 # from mlflow_utils import _get_or_run
 
@@ -58,20 +64,32 @@ ana2_inputs = read_toml(tomlpath)["analysis2"]["inputs"]
 # ここで、entrypoint名（または、認識できる名前）としてgenerationを渡す。
 # mlflowのrunidを習得できるようにしておく。
 run_name = 'generation'
-run = _already_ran(run_name, gen_inputs)
-if run is None:
-    # キャッシュがないので、新しく実行する。
-    with mlflow.start_run(run_name=run_name) as run:
-        run = mlflow.active_run()
-        output = kaizu_generation(gen_inputs)
-        for key, value in gen_inputs.items():
-            log_param(key, value)
-        print(output)
-        # mlflow tracking serverにput
-        log_artifacts(output.replace("file://", ""))
-        print(run)
-else:
-    print("_already_ran worked!!!")
+
+#run = _already_ran(run_name, gen_inputs)
+
+# if run is None:
+#     # キャッシュがないので、新しく実行する。
+#     with mlflow.start_run(run_name=run_name) as run:
+#         run = mlflow.active_run()
+#         output = kaizu_generation(gen_inputs)
+#         for key, value in gen_inputs.items():
+#             log_param(key, value)
+#         print(output)
+#         # mlflow tracking serverにput
+#         log_artifacts(output.replace("file://", ""))
+#         print(run)
+# else:
+#     print("_already_ran worked!!!")
+
+with mlflow.start_run(run_name=run_name) as run:
+    print(mlflow.get_artifact_uri())
+    run = mlflow.active_run()
+    output = kaizu_generation(gen_inputs)
+    for key, value in gen_inputs.items():
+        log_param(key, value)
+    print(output)
+    log_artifacts(output.replace("file://", ""))
+    print(run)
 
 # if run is None:
 #     print("Something wrong at generation")
@@ -79,13 +97,13 @@ else:
 #     log_param(key, value)
 
 ## さきほど取得しておいた、runidをもとに、artifactsを取得するようにする
-## 適切なディレクトリに対して
 
 generation_run_id = run.info.run_id
 print("generation_run_id=["+generation_run_id+"]")
-#generation_run_id = "ee5c4443cdbb4048a14a51ea19d9abc0"
-generation_artifacts_localpath = client.download_artifacts(generation_run_id, ".")
-print("generation_artifacts_localpath=["+generation_artifacts_localpath+"]")
+generation_artifacts_localpath = client.download_artifacts(run_id=generation_run_id, path="")
+print("download from Azure worked!!")
+print(generation_artifacts_localpath)
+#print("generation_artifacts_localpath=["+generation_artifacts_localpath+"]")
 # # generation_artifacts_path = _get_or_run("analysis1", {"generation": generation_run.info.run_id, "threshold": threshold, "min_sigma": min_sigma}, git_commit)
 
 #a["artifacts_pathname"] = generation_artifacts_localpath
@@ -96,7 +114,6 @@ with mlflow.start_run(run_name='analysis1') as run:
     for key, value in ana1_inputs.items():
         log_param(key, value)
     print(output)
-    # mlflow tracking serverにput
     log_artifacts(output["artifacts"].replace("file://", ""))
     print(run)
 
@@ -111,19 +128,19 @@ if run is None:
 #
 analysis1_run_id = run.info.run_id
 print("analysis1_run_id=["+analysis1_run_id+"]")
-analysis1_artifacts_localpath = client.download_artifacts(analysis1_run_id, ".")
-print("analysis1_artifacts_localpath=["+analysis1_artifacts_localpath+"]")
+#analysis1_artifacts_localpath = client.download_artifacts(analysis1_run_id, ".")
+#print("analysis1_artifacts_localpath=["+analysis1_artifacts_localpath+"]")
 #a["artifacts_pathname"] = analysis1_artifacts_localpath
-run = None
-with mlflow.start_run(run_name='analysis2') as run:
-    run = mlflow.active_run()
-    output = kaizu_analysis2(ana2_inputs, generation_artifacts_localpath, analysis1_artifacts_localpath)
-    for key, value in ana2_inputs.items():
-        log_param(key, value)
-    print(output)
-    # mlflow tracking serverにput
-    log_artifacts(output["artifacts"].replace("file://", ""))
-    print(run)
+# run = None
+# with mlflow.start_run(run_name='analysis2') as run:
+#     run = mlflow.active_run()
+#     output = kaizu_analysis2(ana2_inputs, generation_artifacts_localpath, analysis1_artifacts_localpath)
+#     for key, value in ana2_inputs.items():
+#         log_param(key, value)
+#     print(output)
+#     # mlflow tracking serverにput
+#     log_artifacts(output["artifacts"].replace("file://", ""))
+#     print(run)
 
-if run is None:
-    print("Something wrong at analysis2")
+# if run is None:
+#     print("Something wrong at analysis2")
