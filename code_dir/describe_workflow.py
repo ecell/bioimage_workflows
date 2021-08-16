@@ -48,7 +48,8 @@ def _already_ran(run_name, parameters, experiment_id=None):
 expr_name = "azureblob_experiment4"
 azure_blob = "wasbs://<container>@<storage-account>.blob.core.windows.net/<path>"
 
-mlflow.create_experiment(expr_name, azure_blob)
+if mlflow.get_experiment_by_name(expr_name) is None:
+    mlflow.create_experiment(expr_name, azure_blob)
 mlflow.set_experiment(expr_name)
 
 client = MlflowClient()
