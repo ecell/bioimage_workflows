@@ -45,11 +45,15 @@ def _already_ran(run_name, parameters, experiment_id=None):
     eprint("No matching run has been found.")
     return None
 
-expr_name = "azureblob_experiment4"
-azure_blob = "wasbs://<container>@<storage-account>.blob.core.windows.net/<path>"
+expr_name = "hoge1"
+#azure_blob = "wasbs://<container>@<storage-account>.blob.core.windows.net/<path>"
+mlflow.set_tracking_uri("http://11.11.11.11:1111")
+tracking_uri = mlflow.get_tracking_uri()
+print("Current tracking uri: {}".format(tracking_uri))
 
 if mlflow.get_experiment_by_name(expr_name) is None:
-    mlflow.create_experiment(expr_name, azure_blob)
+    #mlflow.create_experiment(expr_name, azure_blob)
+    mlflow.create_experiment(expr_name)
 mlflow.set_experiment(expr_name)
 
 client = MlflowClient()
