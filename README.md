@@ -1,19 +1,26 @@
-# bioimage_workflows
+# Setup (remotehost)
+```
+sudo python3 -m pip install mlflow azure-storage-blob
+export AZURE_STORAGE_CONNECTION_STRING="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+mlflow server --host 0.0.0.0 --default-artifact-root wasbs://XXXXX@YYYYY.blob.core.windows.net/
+```
 
-## System Requirements
+# Setup (localhost)
+```
+sudo apt install python3-pip python3-venv
+cd ~
+python3 -m venv venv-ecell
+source venv-ecell/bin/activate
+pip install -U pip
+pip install mlflow toml scikit-image plotly kaleido azure-storage-blob
+pip install git+git://github.com/ecell/scopyon.git@99436fbfd34bb684966846eba75b206c2806f69c
+export AZURE_STORAGE_CONNECTION_STRING="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+```
 
-- Ubuntu Linux 18.04 (This workflow does not work in WSL2 environment due to the uniqueness of the file system)
-
-## How to run this workflow
-
-1. Install [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
-1. run `pip install mlflow` with Miniconda's pip
-1. run `tmux` to create multiple shells and save the processes
-1. run `mlflow ui -h 0.0.0.0` and create a new tmux pane
-1. move to the another tmux pane and run `mlflow run https://github.com/ecell/bioimage_workflows.git`
-
-## How to run specific workflow which is written as entrypoint
-
-If you want to execute `analysis1` in entrypoint, command is following
-
-`mlflow run -e analysis1 https://github.com/ecell/bioimage_workflows.git -P num_samples=1 -P num_frames=5`
+# Running experiment (localhost)
+```
+git clone https://github.com/ecell/bioimage_workflows
+cd bioimage_workflows
+git checkout -t origin/nocode
+python describe_workflow.py
+```
