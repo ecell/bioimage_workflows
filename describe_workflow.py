@@ -1,3 +1,4 @@
+import sys
 from mlflow import log_metric, log_param, log_artifacts
 import mlflow
 from mlflow.tracking import MlflowClient
@@ -6,11 +7,9 @@ from mlflow.utils import mlflow_tags
 from mlflow.utils.logging_utils import eprint
 from mlflow.entities import RunStatus
 
-# from tomlfunc import read_toml, get_inputs
+# Import our own function
 from tomlfunc import read_toml
 from function_list import kaizu_generation, kaizu_analysis1, kaizu_analysis2
-#
-import sys
 
 def _already_ran(run_name, parameters, experiment_id=None):
     """Best-effort detection of if a run with the given entrypoint name,
@@ -46,7 +45,6 @@ def _already_ran(run_name, parameters, experiment_id=None):
     return None
 
 expr_name = "hoge1"
-#azure_blob = "wasbs://<container>@<storage-account>.blob.core.windows.net/<path>"
 mlflow.set_tracking_uri("http://11.11.11.11:1111")
 tracking_uri = mlflow.get_tracking_uri()
 print("Current tracking uri: {}".format(tracking_uri))
