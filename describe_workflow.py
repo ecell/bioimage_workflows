@@ -15,9 +15,6 @@ from function_list import kaizu_generation, kaizu_analysis1, kaizu_analysis2
 
 tomlpath = "./params.toml"
 params = read_toml(tomlpath)
-gen_inputs = params["generation"]["inputs"]
-ana1_inputs = params["analysis1"]["inputs"]
-ana2_inputs = params["analysis2"]["inputs"]
 expr_name = params["experiment"]
 
 mlflow.set_tracking_uri(params["tracking_uri"])
@@ -40,7 +37,9 @@ run_name = 'generation'
 with mlflow.start_run(run_name=run_name) as run:
     print(mlflow.get_artifact_uri())
     run = mlflow.active_run()
-    output = kaizu_generation(gen_inputs)
+    gen_inputs = params["generation"]["inputs"]
+    func = eval(params["generation"]["function"])
+    output = func(gen_inputs)
     for key, value in gen_inputs.items():
         log_param(key, value)
     print(output)
@@ -61,7 +60,9 @@ print(generation_artifacts_localpath)
 run = None
 with mlflow.start_run(run_name='analysis1') as run:
     run = mlflow.active_run()
-    output = kaizu_analysis1(ana1_inputs)
+    ana1_inputs = params["analysis1"]["inputs"]
+    func = eval(params["analysis1"]["function"])
+    output = func(ana1_inputs)
     for key, value in ana1_inputs.items():
         log_param(key, value)
     print(output)
