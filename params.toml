@@ -4,40 +4,39 @@ title = "scopyon"
 
 [generation]
   [generation.inputs]
-  seed = 123
-  interval = 0.033
-  num_samples = 1
-  # num_frames = 100 
-  # 5 does not guarantee the correctness of the result, but we will use 5 now...
-  num_frames = 5
-  exposure_time = 0.033
+    seed = 123
+    interval = 0.033
+    num_samples = 1
+    # num_frames = 100
+    # 5 does not guarantee the correctness of the result, but we will use 5 now...
+    num_frames = 5
+    exposure_time = 0.033
   [generation.outputs]
-  artifacts = "./artifacts"
+    artifacts = "./artifacts"
 
 [analysis1]
   [analysis1.inputs]
-  max_sigma = 4
-  min_sigma = 1
-  threshold = 50.0
-  overlap = 0.5
-  num_samples = 1
-  num_frames = 100
+    max_sigma = 4
+    min_sigma = 1
+    threshold = 50.0
+    overlap = 0.5
+    num_samples = 1
+    num_frames = 100
   [analysis1.outputs]
-  artifacts = "./artifacts"
+    artifacts = "./artifacts"
 
-[analysis2]
-  [analysis2.inputs]
-  seed = 123
-  max_distance = 50.0
-  num_samples = 1
-  num_frames = 100
-  interval = 0.033
-  [analysis2.outputs]
-  artifacts = "./artifacts"
-
-[evaluation1]
-  [evaluation1.inputs]
-  artifacts = "./artifacts"
-  [evaluation1.outputs]
-  artifacts = "./artifacts"
-  
+# [analysis2]
+#   [analysis2.inputs]
+#     seed = 123
+#     max_distance = 50.0
+#     num_samples = 1
+#     num_frames = 100
+#     interval = 0.033
+#   [analysis2.outputs]
+#     artifacts = "./artifacts"
+# 
+# [evaluation1]
+#   [evaluation1.inputs]
+#     artifacts = "./artifacts"
+#   [evaluation1.outputs]
+#     artifacts = "./artifacts"
