@@ -8,7 +8,7 @@ from mlflow.utils.logging_utils import eprint
 from mlflow.entities import RunStatus
 
 # Import our own function
-from tomlfunc import read_toml
+from bioimage_workflow.toml import read_toml
 from function_list import kaizu_generation, kaizu_analysis1, kaizu_analysis2
 
 def _already_ran(run_name, parameters, experiment_id=None):
