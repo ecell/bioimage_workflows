@@ -5,10 +5,6 @@ import pathlib
 #from generation import generation
 from bioimage_workflow.toml import read_toml
 
-def try_generation():
-    tomlfile = "./test.toml"
-    outputs = generation(read_toml(tomlfile)["generation"]["inputs"])
-    return outputs
 
 def kaizu_generation(inputs: dict) -> str:
     seed = 123
