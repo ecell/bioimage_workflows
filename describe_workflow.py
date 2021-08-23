@@ -9,11 +9,18 @@ from mlflow.entities import RunStatus
 
 # Import our own function
 from bioimage_workflow.toml import read_toml
+
 from function_list import kaizu_generation, kaizu_analysis1, kaizu_analysis2
 
 
-expr_name = "hoge1"
-mlflow.set_tracking_uri("http://11.11.11.11:1111")
+tomlpath = "./params.toml"
+params = read_toml(tomlpath)
+gen_inputs = params["generation"]["inputs"]
+ana1_inputs = params["analysis1"]["inputs"]
+ana2_inputs = params["analysis2"]["inputs"]
+expr_name = params["experiment"]
+
+mlflow.set_tracking_uri(params["tracking_uri"])
 tracking_uri = mlflow.get_tracking_uri()
 print("Current tracking uri: {}".format(tracking_uri))
 
@@ -24,12 +31,6 @@ mlflow.set_experiment(expr_name)
 
 client = MlflowClient()
 # from mlflow_utils import _get_or_run
-
-tomlpath = "./params.toml"
-
-gen_inputs = read_toml(tomlpath)["generation"]["inputs"]
-ana1_inputs = read_toml(tomlpath)["analysis1"]["inputs"]
-ana2_inputs = read_toml(tomlpath)["analysis2"]["inputs"]
 
 # MLFlow の run を開始する
 # ここで、entrypoint名（または、認識できる名前）としてgenerationを渡す。

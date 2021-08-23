@@ -1,6 +1,8 @@
 # you can write comment
 
-title = "scopyon"
+# title = "scopyon"
+experiment = "hoge1"
+tracking_uri = "http://11.11.11.11:1111"
 
 [generation]
   [generation.inputs]
