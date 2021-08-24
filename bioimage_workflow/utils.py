@@ -1,3 +1,15 @@
+import tempfile
+import contextlib
+
+def mkdtemp_persistent(*args, persistent=True, **kwargs):
+    if persistent:
+        @contextlib.contextmanager
+        def normal_mkdtemp():
+            yield tempfile.mkdtemp(*args, **kwargs)
+        return normal_mkdtemp()
+    else:
+        return tempfile.TemporaryDirectory(*args, **kwargs)
+
 # import sys
 # from mlflow import log_metric, log_param, log_artifacts
 # import mlflow

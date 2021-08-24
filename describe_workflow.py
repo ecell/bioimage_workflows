@@ -12,15 +12,25 @@ from mlflow.entities import RunStatus
 
 # Import our own function
 from bioimage_workflow.toml import read_toml
-
+from bioimage_workflow.utils import mkdtemp_persistent
 from function_list import kaizu_generation, kaizu_analysis1
 
-tomlpath = "./params.toml"
-config = read_toml(tomlpath)
-expr_name = config["experiment"]
 
-artifacts = pathlib.Path("./artifacts")
+import argparse
+
+parser = argparse.ArgumentParser(description='Run the workflow')
+parser.add_argument('-p', '--persistent', help='Stop removing temporal aritfact directories', action='store_true')
+parser.add_argument('-i', '--input', help='A toml file', default='params.toml')
+parser.add_argument('-o', '--output', help='Set the root directory for reserving artifacts locally', default='artifacts')
+args = parser.parse_args()
+
+persistent = args.persistent
+
+artifacts = pathlib.Path(args.output)
 artifacts.mkdir(parents=True, exist_ok=True)
+
+config = read_toml(args.input)
+expr_name = config["experiment"]
 
 mlflow.set_tracking_uri(config["tracking_uri"])
 tracking_uri = mlflow.get_tracking_uri()
@@ -45,13 +55,13 @@ with mlflow.start_run(run_name=run_name) as run:
     gen_params = config["generation"]["params"]
     func = eval(config["generation"]["function"])
 
-    with tempfile.TemporaryDirectory(dir=artifacts) as outname:
+    with mkdtemp_persistent(persistent=persistent, dir=artifacts) as outname:
         outpath = pathlib.Path(outname)
         output = func((), outpath, gen_params)
         for key, value in gen_params.items():
             log_param(key, value)
-        print(output)
-        log_artifacts(output.replace("file://", ""))
+        print(f'output = "{output}"')
+        log_artifacts(output['artifacts'].replace("file://", ""))
 
     print(run)
 
@@ -72,12 +82,12 @@ with mlflow.start_run(run_name='analysis1') as run:
     ana1_params = config["analysis1"]["params"]
     func = eval(config["analysis1"]["function"])
 
-    with tempfile.TemporaryDirectory(dir=artifacts) as outname:
+    with mkdtemp_persistent(persistent=persistent, dir=artifacts) as outname:
         outpath = pathlib.Path(outname)
         output = func((pathlib.Path(generation_artifacts_localpath), ), outpath, ana1_params)
         for key, value in ana1_params.items():
             log_param(key, value)
-        print(output)
+        print(f'output = "{output}"')
         log_artifacts(output["artifacts"].replace("file://", ""))
 
     print(run)
