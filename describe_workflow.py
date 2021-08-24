@@ -15,23 +15,35 @@ from bioimage_workflow.toml import read_toml
 from bioimage_workflow.utils import mkdtemp_persistent
 from function_list import kaizu_generation1, kaizu_analysis1
 
+def download_artifacts(run_id, path='', dst_path=None):
+    print(f'run_id = "{run_id}"')
+    dst_path.mkdir()
+    artifacts_path = client.download_artifacts(run_id=run_id, path=path, dst_path=str(dst_path))
+    print("download from Azure worked!!")
+    print(f'artifacts_path = "{artifacts_path}"')
+    return pathlib.Path(artifacts_path)
+
 def run_rule(run_name, config, inputs=(), idx=None, persistent=False, rootpath='.'):
     target = config[run_name] if idx is None else config[run_name][idx]
+
     run = None
     with mlflow.start_run(run_name=run_name) as run:
         func_name = target["function"]
         print(run_name, func_name)
         print(mlflow.get_artifact_uri())
         run = mlflow.active_run()
-        print(run)
-        gen_params = target["params"]
-        print(f'params = "{gen_params}"')
+        print('run_id = "{run.info.run_id}"')
+        params = target["params"]
+        print(f'params = "{params}"')
         func = eval(func_name)
 
         with mkdtemp_persistent(persistent=persistent, dir=rootpath) as outname:
-            outpath = pathlib.Path(outname)
-            artifacts, metrics = func(inputs, outpath, gen_params)
-            for key, value in gen_params.items():
+            working_dir = pathlib.Path(outname)
+            input_paths = tuple(download_artifacts(run_id, dst_path=working_dir / f'input{i}') for i, run_id in enumerate(inputs))
+            output_path = working_dir / 'output'
+            output_path.mkdir()
+            artifacts, metrics = func(input_paths, output_path, params)
+            for key, value in params.items():
                 log_param(key, value)
             print(f'artifacts = "{artifacts}"')
             print(f'metrics = "{metrics}"')
@@ -77,26 +89,11 @@ run = run_rule('generation', config, inputs=(), idx=0, persistent=persistent, ro
 ## さきほど取得しておいた、runidをもとに、artifactsを取得するようにする
 
 generation_run_id = run.info.run_id
-print("generation_run_id=["+generation_run_id+"]")
-generation_artifacts_localpath = client.download_artifacts(run_id=generation_run_id, path="")
-print("download from Azure worked!!")
-print(generation_artifacts_localpath)
-# print("generation_artifacts_localpath=["+generation_artifacts_localpath+"]")
-# generation_artifacts_path = _get_or_run("analysis", {"generation": generation_run.info.run_id, "threshold": threshold, "min_sigma": min_sigma}, git_commit)
 
-# a["artifacts_pathname"] = generation_artifacts_localpath
-
-run = run_rule('analysis', config, inputs=(pathlib.Path(generation_artifacts_localpath), ), idx=0, persistent=persistent, rootpath=rootpath)
+run = run_rule('analysis', config, inputs=(generation_run_id, ), idx=0, persistent=persistent, rootpath=rootpath)
 
 if run is None:
     print("Something wrong at analysis")
 
-# log_artifacts(output["artifacts"].replace("file://", ""))
 # ## toml には書いてあってとしても、generationのrun id
 # ## runidから、指定した、フォルダなりファイルを扱うようにする。
-
-analysis_run_id = run.info.run_id
-print("analysis_run_id=["+analysis_run_id+"]")
-# analysis_artifacts_localpath = client.download_artifacts(analysis_run_id, ".")
-# print("analysis_artifacts_localpath=["+analysis_artifacts_localpath+"]")
-# a["artifacts_pathname"] = analysis_artifacts_localpath
