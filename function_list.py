@@ -6,7 +6,9 @@ import pathlib
 from bioimage_workflow.toml import read_toml
 
 
-def kaizu_generation(params: dict) -> str:
+def kaizu_generation(inputs, output, params: dict) -> str:
+    assert len(inputs) == 0
+
     seed = 123
     interval = 0.033
     num_samples = params["num_samples"]
@@ -23,10 +25,11 @@ def kaizu_generation(params: dict) -> str:
     # for key, value in vars(args).items():
     #     log_param(key, value)
 
-    import tempfile
     print(params)
-    artifacts = pathlib.Path("./artifacts")
-    artifacts.mkdir(parents=True, exist_ok=True)
+
+    # artifacts = pathlib.Path("./artifacts")
+    # artifacts.mkdir(parents=True, exist_ok=True)
+    artifacts = output
 
     #XXX: HERE
 
@@ -69,7 +72,8 @@ def kaizu_generation(params: dict) -> str:
 
     return artifacts.absolute().as_uri()
 
-def kaizu_analysis1(params: dict) -> str:
+def kaizu_analysis1(inputs, output, params: dict) -> str:
+    assert len(inputs) == 1
 
     generation = ""
     min_sigma = 1
@@ -80,11 +84,14 @@ def kaizu_analysis1(params: dict) -> str:
     num_samples = params["num_samples"]
     num_frames = params["num_frames"]
     interval = 0.033
-    generation_artifacts = pathlib.Path("./artifacts")
-    
-    import tempfile
-    artifacts = pathlib.Path("./artifacts")
-    artifacts.mkdir(parents=True, exist_ok=True)
+
+    # generation_artifacts = pathlib.Path("./artifacts")
+    generation_artifacts = inputs[0]
+
+    # import tempfile
+    # artifacts = pathlib.Path("./artifacts")
+    # artifacts.mkdir(parents=True, exist_ok=True)
+    artifacts = output
 
     #XXX: HERE
 

@@ -1,5 +1,6 @@
 import sys
 import tempfile
+import pathlib
 
 from mlflow import log_metric, log_param, log_artifacts
 import mlflow
@@ -17,6 +18,9 @@ from function_list import kaizu_generation, kaizu_analysis1
 tomlpath = "./params.toml"
 config = read_toml(tomlpath)
 expr_name = config["experiment"]
+
+artifacts = pathlib.Path("./artifacts")
+artifacts.mkdir(parents=True, exist_ok=True)
 
 mlflow.set_tracking_uri(config["tracking_uri"])
 tracking_uri = mlflow.get_tracking_uri()
@@ -41,13 +45,14 @@ with mlflow.start_run(run_name=run_name) as run:
     gen_params = config["generation"]["params"]
     func = eval(config["generation"]["function"])
 
-    # with tempfile.TemporaryDirectory() as outname:
-    #     outpath = pathlib.Path(outname)
-    output = func(gen_params)
-    for key, value in gen_params.items():
-        log_param(key, value)
-    print(output)
-    log_artifacts(output.replace("file://", ""))
+    with tempfile.TemporaryDirectory(dir=artifacts) as outname:
+        outpath = pathlib.Path(outname)
+        output = func((), outpath, gen_params)
+        for key, value in gen_params.items():
+            log_param(key, value)
+        print(output)
+        log_artifacts(output.replace("file://", ""))
+
     print(run)
 
 ## さきほど取得しておいた、runidをもとに、artifactsを取得するようにする
@@ -66,11 +71,15 @@ with mlflow.start_run(run_name='analysis1') as run:
     run = mlflow.active_run()
     ana1_params = config["analysis1"]["params"]
     func = eval(config["analysis1"]["function"])
-    output = func(ana1_params)
-    for key, value in ana1_params.items():
-        log_param(key, value)
-    print(output)
-    log_artifacts(output["artifacts"].replace("file://", ""))
+
+    with tempfile.TemporaryDirectory(dir=artifacts) as outname:
+        outpath = pathlib.Path(outname)
+        output = func((pathlib.Path(generation_artifacts_localpath), ), outpath, ana1_params)
+        for key, value in ana1_params.items():
+            log_param(key, value)
+        print(output)
+        log_artifacts(output["artifacts"].replace("file://", ""))
+
     print(run)
 
 if run is None:
