@@ -26,8 +26,8 @@ args = parser.parse_args()
 
 persistent = args.persistent
 
-artifacts = pathlib.Path(args.output)
-artifacts.mkdir(parents=True, exist_ok=True)
+rootpath = pathlib.Path(args.output)
+rootpath.mkdir(parents=True, exist_ok=True)
 
 config = read_toml(args.input)
 expr_name = config["experiment"]
@@ -55,13 +55,16 @@ with mlflow.start_run(run_name=run_name) as run:
     gen_params = config["generation"]["params"]
     func = eval(config["generation"]["function"])
 
-    with mkdtemp_persistent(persistent=persistent, dir=artifacts) as outname:
+    with mkdtemp_persistent(persistent=persistent, dir=rootpath) as outname:
         outpath = pathlib.Path(outname)
-        output = func((), outpath, gen_params)
+        artifacts, metrics = func((), outpath, gen_params)
         for key, value in gen_params.items():
             log_param(key, value)
-        print(f'output = "{output}"')
-        log_artifacts(output['artifacts'].replace("file://", ""))
+        print(f'artifacts = "{artifacts}"')
+        print(f'metrics = "{metrics}"')
+        log_artifacts(artifacts.replace("file://", ""))
+        for key, value in metrics.items():
+            log_metric(key, value)
 
     print(run)
 
@@ -82,13 +85,16 @@ with mlflow.start_run(run_name='analysis1') as run:
     ana1_params = config["analysis1"]["params"]
     func = eval(config["analysis1"]["function"])
 
-    with mkdtemp_persistent(persistent=persistent, dir=artifacts) as outname:
+    with mkdtemp_persistent(persistent=persistent, dir=rootpath) as outname:
         outpath = pathlib.Path(outname)
-        output = func((pathlib.Path(generation_artifacts_localpath), ), outpath, ana1_params)
+        artifacts, metrics = func((pathlib.Path(generation_artifacts_localpath), ), outpath, ana1_params)
         for key, value in ana1_params.items():
             log_param(key, value)
-        print(f'output = "{output}"')
-        log_artifacts(output["artifacts"].replace("file://", ""))
+        print(f'artifacts = "{artifacts}"')
+        print(f'metrics = "{metrics}"')
+        log_artifacts(artifacts.replace("file://", ""))
+        for key, value in metrics.items():
+            log_metric(key, value)
 
     print(run)
 

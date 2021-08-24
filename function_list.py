@@ -70,7 +70,7 @@ def kaizu_generation(inputs, output, params: dict) -> str:
         true_data = numpy.array(true_data)
         numpy.save(artifacts / f"true_data{i:03d}.npy", true_data)
 
-    return {"artifacts": artifacts.absolute().as_uri()}
+    return artifacts.absolute().as_uri(), {}
 
 def kaizu_analysis1(inputs, output, params: dict) -> str:
     assert len(inputs) == 1
@@ -125,7 +125,7 @@ def kaizu_analysis1(inputs, output, params: dict) -> str:
         print("{} spots are detected in {} frames.".format(len(spots_), len(imgs)))
         #log_metric("num_spots", len(spots_))
 
-    return {"artifacts": artifacts.absolute().as_uri(), "num_spots": len(spots_)}
+    return artifacts.absolute().as_uri(), {"num_spots": len(spots_)}
 
 # def kaizu_analysis2(params: dict, generation_artifacts: str, analysis1_artifacts: str) -> str:
 #     seed = params["seed"]
