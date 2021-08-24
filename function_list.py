@@ -25,8 +25,6 @@ def kaizu_generation1(inputs, output, params: dict) -> str:
     # for key, value in vars(args).items():
     #     log_param(key, value)
 
-    print(params)
-
     # artifacts = pathlib.Path("./artifacts")
     # artifacts.mkdir(parents=True, exist_ok=True)
     artifacts = output
