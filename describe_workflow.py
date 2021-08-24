@@ -20,8 +20,8 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Run the workflow')
 parser.add_argument('-p', '--persistent', help='Stop removing temporal aritfact directories', action='store_true')
-parser.add_argument('-i', '--input', help='A toml file', default='config.toml')
-parser.add_argument('-o', '--output', help='Set the root directory for reserving artifacts locally', default='artifacts')
+parser.add_argument('-i', '--input', help='A toml file ("./config.toml")', default='config.toml')
+parser.add_argument('-o', '--output', help='Set the root directory for reserving artifacts locally ("./artifacts")', default='artifacts')
 args = parser.parse_args()
 
 persistent = args.persistent
