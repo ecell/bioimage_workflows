@@ -13,14 +13,14 @@ from mlflow.entities import RunStatus
 # Import our own function
 from bioimage_workflow.toml import read_toml
 from bioimage_workflow.utils import mkdtemp_persistent
-from function_list import kaizu_generation, kaizu_analysis1
+from function_list import kaizu_generation1, kaizu_analysis1
 
 
 import argparse
 
 parser = argparse.ArgumentParser(description='Run the workflow')
 parser.add_argument('-p', '--persistent', help='Stop removing temporal aritfact directories', action='store_true')
-parser.add_argument('-i', '--input', help='A toml file', default='params.toml')
+parser.add_argument('-i', '--input', help='A toml file', default='config.toml')
 parser.add_argument('-o', '--output', help='Set the root directory for reserving artifacts locally', default='artifacts')
 args = parser.parse_args()
 
@@ -47,9 +47,8 @@ client = MlflowClient()
 # MLFlow の run を開始する
 # ここで、entrypoint名（または、認識できる名前）としてgenerationを渡す。
 # mlflowのrunidを習得できるようにしておく。
-run_name = 'generation'
 
-with mlflow.start_run(run_name=run_name) as run:
+with mlflow.start_run(run_name='generation') as run:
     print(mlflow.get_artifact_uri())
     run = mlflow.active_run()
     gen_params = config["generation"]["params"]
@@ -76,14 +75,14 @@ generation_artifacts_localpath = client.download_artifacts(run_id=generation_run
 print("download from Azure worked!!")
 print(generation_artifacts_localpath)
 #print("generation_artifacts_localpath=["+generation_artifacts_localpath+"]")
-# # generation_artifacts_path = _get_or_run("analysis1", {"generation": generation_run.info.run_id, "threshold": threshold, "min_sigma": min_sigma}, git_commit)
+# # generation_artifacts_path = _get_or_run("analysis", {"generation": generation_run.info.run_id, "threshold": threshold, "min_sigma": min_sigma}, git_commit)
 
 #a["artifacts_pathname"] = generation_artifacts_localpath
 run = None
-with mlflow.start_run(run_name='analysis1') as run:
+with mlflow.start_run(run_name='analysis') as run:
     run = mlflow.active_run()
-    ana1_params = config["analysis1"]["params"]
-    func = eval(config["analysis1"]["function"])
+    ana1_params = config["analysis"]["params"]
+    func = eval(config["analysis"]["function"])
 
     with mkdtemp_persistent(persistent=persistent, dir=rootpath) as outname:
         outpath = pathlib.Path(outname)
@@ -99,7 +98,7 @@ with mlflow.start_run(run_name='analysis1') as run:
     print(run)
 
 if run is None:
-    print("Something wrong at analysis1")
+    print("Something wrong at analysis")
 
 # log_artifacts(output["artifacts"].replace("file://", ""))
 # ## toml には書いてあってとしても、generationのrun id
@@ -107,8 +106,8 @@ if run is None:
 # log_metric("num_spots", output["num_spots"])
 
 #
-analysis1_run_id = run.info.run_id
-print("analysis1_run_id=["+analysis1_run_id+"]")
-#analysis1_artifacts_localpath = client.download_artifacts(analysis1_run_id, ".")
-#print("analysis1_artifacts_localpath=["+analysis1_artifacts_localpath+"]")
-#a["artifacts_pathname"] = analysis1_artifacts_localpath
+analysis_run_id = run.info.run_id
+print("analysis_run_id=["+analysis_run_id+"]")
+#analysis_artifacts_localpath = client.download_artifacts(analysis_run_id, ".")
+#print("analysis_artifacts_localpath=["+analysis_artifacts_localpath+"]")
+#a["artifacts_pathname"] = analysis_artifacts_localpath

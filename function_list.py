@@ -6,7 +6,7 @@ import pathlib
 from bioimage_workflow.toml import read_toml
 
 
-def kaizu_generation(inputs, output, params: dict) -> str:
+def kaizu_generation1(inputs, output, params: dict) -> str:
     assert len(inputs) == 0
 
     seed = 123
