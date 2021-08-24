@@ -1,4 +1,6 @@
 import sys
+import tempfile
+
 from mlflow import log_metric, log_param, log_artifacts
 import mlflow
 from mlflow.tracking import MlflowClient
@@ -10,14 +12,13 @@ from mlflow.entities import RunStatus
 # Import our own function
 from bioimage_workflow.toml import read_toml
 
-from function_list import kaizu_generation, kaizu_analysis1, kaizu_analysis2
-
+from function_list import kaizu_generation, kaizu_analysis1
 
 tomlpath = "./params.toml"
-params = read_toml(tomlpath)
-expr_name = params["experiment"]
+config = read_toml(tomlpath)
+expr_name = config["experiment"]
 
-mlflow.set_tracking_uri(params["tracking_uri"])
+mlflow.set_tracking_uri(config["tracking_uri"])
 tracking_uri = mlflow.get_tracking_uri()
 print("Current tracking uri: {}".format(tracking_uri))
 
@@ -37,10 +38,13 @@ run_name = 'generation'
 with mlflow.start_run(run_name=run_name) as run:
     print(mlflow.get_artifact_uri())
     run = mlflow.active_run()
-    gen_inputs = params["generation"]["inputs"]
-    func = eval(params["generation"]["function"])
-    output = func(gen_inputs)
-    for key, value in gen_inputs.items():
+    gen_params = config["generation"]["params"]
+    func = eval(config["generation"]["function"])
+
+    # with tempfile.TemporaryDirectory() as outname:
+    #     outpath = pathlib.Path(outname)
+    output = func(gen_params)
+    for key, value in gen_params.items():
         log_param(key, value)
     print(output)
     log_artifacts(output.replace("file://", ""))
@@ -60,10 +64,10 @@ print(generation_artifacts_localpath)
 run = None
 with mlflow.start_run(run_name='analysis1') as run:
     run = mlflow.active_run()
-    ana1_inputs = params["analysis1"]["inputs"]
-    func = eval(params["analysis1"]["function"])
-    output = func(ana1_inputs)
-    for key, value in ana1_inputs.items():
+    ana1_params = config["analysis1"]["params"]
+    func = eval(config["analysis1"]["function"])
+    output = func(ana1_params)
+    for key, value in ana1_params.items():
         log_param(key, value)
     print(output)
     log_artifacts(output["artifacts"].replace("file://", ""))
