@@ -1,12 +1,15 @@
 #import mlflow
 import toml
 import pathlib
+import typing
 
 #from generation import generation
 from bioimage_workflow.toml import read_toml
 
+from typing import Tuple
+PathLike = typing.Union[str, pathlib.Path]
 
-def kaizu_generation1(inputs, output, params: dict) -> str:
+def kaizu_generation1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> Tuple[str, dict]:
     assert len(inputs) == 0
 
     seed = 123
@@ -70,7 +73,7 @@ def kaizu_generation1(inputs, output, params: dict) -> str:
 
     return artifacts.absolute().as_uri(), {}
 
-def kaizu_analysis1(inputs, output, params: dict) -> str:
+def kaizu_analysis1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> Tuple[str, dict]:
     assert len(inputs) == 1
 
     generation = ""
