@@ -15,15 +15,16 @@ from bioimage_workflow.toml import read_toml
 from bioimage_workflow.utils import mkdtemp_persistent
 from function_list import kaizu_generation1, kaizu_analysis1
 
-def run_rule(run_name, config, inputs=(), persistent=False, rootpath='.'):
+def run_rule(run_name, config, inputs=(), idx=None, persistent=False, rootpath='.'):
+    target = config[run_name] if idx is None else config[run_name][idx]
     run = None
     with mlflow.start_run(run_name=run_name) as run:
-        func_name = config[run_name]["function"]
+        func_name = target["function"]
         print(run_name, func_name)
         print(mlflow.get_artifact_uri())
         run = mlflow.active_run()
         print(run)
-        gen_params = config[run_name]["params"]
+        gen_params = target["params"]
         print(f'params = "{gen_params}"')
         func = eval(func_name)
 
@@ -71,7 +72,7 @@ client = MlflowClient()
 # ここで、entrypoint名（または、認識できる名前）としてgenerationを渡す。
 # mlflowのrunidを習得できるようにしておく。
 
-run = run_rule('generation', config, inputs=(), persistent=persistent, rootpath=rootpath)
+run = run_rule('generation', config, inputs=(), idx=0, persistent=persistent, rootpath=rootpath)
 
 ## さきほど取得しておいた、runidをもとに、artifactsを取得するようにする
 
@@ -85,7 +86,7 @@ print(generation_artifacts_localpath)
 
 # a["artifacts_pathname"] = generation_artifacts_localpath
 
-run = run_rule('analysis', config, inputs=(pathlib.Path(generation_artifacts_localpath), ), persistent=persistent, rootpath=rootpath)
+run = run_rule('analysis', config, inputs=(pathlib.Path(generation_artifacts_localpath), ), idx=0, persistent=persistent, rootpath=rootpath)
 
 if run is None:
     print("Something wrong at analysis")

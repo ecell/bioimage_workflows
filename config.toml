@@ -4,7 +4,7 @@
 experiment = "experiment1"
 tracking_uri = "http://20.89.40.85:5000"
 
-[generation]
+[[generation]]
   function = "kaizu_generation1"
 
   [generation.params]
@@ -18,7 +18,7 @@ tracking_uri = "http://20.89.40.85:5000"
   [generation.outputs]
     artifacts = "./artifacts"
 
-[analysis]
+[[analysis]]
   function = "kaizu_analysis1"
 
   [analysis.params]
@@ -28,6 +28,7 @@ tracking_uri = "http://20.89.40.85:5000"
     overlap = 0.5
     num_samples = 1
     num_frames = 100
+    interval = 0.033
   [analysis.outputs]
     artifacts = "./artifacts"
 

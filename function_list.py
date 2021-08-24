@@ -76,15 +76,13 @@ def kaizu_generation1(inputs: Tuple[PathLike, ...], output: PathLike, params: di
 def kaizu_analysis1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> Tuple[str, dict]:
     assert len(inputs) == 1
 
-    generation = ""
-    min_sigma = 1
-    max_sigma = 4
-    threshold = 50.0
-    overlap = 0.5
-
+    min_sigma = params["min_sigma"]
+    max_sigma = params["max_sigma"]
+    threshold = params["threshold"]
+    overlap = params["overlap"]
     num_samples = params["num_samples"]
     num_frames = params["num_frames"]
-    interval = 0.033
+    interval = params["interval"]
 
     # generation_artifacts = pathlib.Path("./artifacts")
     generation_artifacts = inputs[0]
