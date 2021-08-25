@@ -2,9 +2,7 @@
 import toml
 import pathlib
 import typing
-
-#from generation import generation
-from bioimage_workflow.toml import read_toml
+import re
 
 from typing import Tuple
 PathLike = typing.Union[str, pathlib.Path]
@@ -12,11 +10,11 @@ PathLike = typing.Union[str, pathlib.Path]
 def kaizu_generation1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> Tuple[str, dict]:
     assert len(inputs) == 0
 
-    seed = 123
-    interval = 0.033
+    seed = params['seed']
+    interval = params['interval']
     num_samples = params["num_samples"]
     num_frames = params["num_frames"]
-    exposure_time = 0.033
+    exposure_time = params['exposure_time']
 
     Nm = [100, 100, 100]
     Dm = [0.222e-12, 0.032e-12, 0.008e-12]
@@ -25,11 +23,6 @@ def kaizu_generation1(inputs: Tuple[PathLike, ...], output: PathLike, params: di
         [0.5, 0.0, 0.2],
         [0.0, 1.0, 0.0]]
 
-    # for key, value in vars(args).items():
-    #     log_param(key, value)
-
-    # artifacts = pathlib.Path("./artifacts")
-    # artifacts.mkdir(parents=True, exist_ok=True)
     artifacts = output
 
     #XXX: HERE
@@ -80,35 +73,37 @@ def kaizu_analysis1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict
     max_sigma = params["max_sigma"]
     threshold = params["threshold"]
     overlap = params["overlap"]
-    num_samples = params["num_samples"]
-    num_frames = params["num_frames"]
-    interval = params["interval"]
+    # num_samples = params["num_samples"]
+    # num_frames = params["num_frames"]
+    # interval = params["interval"]
 
-    # generation_artifacts = pathlib.Path("./artifacts")
     generation_artifacts = inputs[0]
-
-    # import tempfile
-    # artifacts = pathlib.Path("./artifacts")
-    # artifacts.mkdir(parents=True, exist_ok=True)
     artifacts = output
 
     #XXX: HERE
 
     import numpy
-    timepoints = numpy.linspace(0, interval * num_frames, num_frames + 1)
 
     import scopyon
 
     import warnings
     warnings.simplefilter('ignore', RuntimeWarning)
 
-    for i in range(num_samples):
-        imgs = [scopyon.Image(data) for data in numpy.load(generation_artifacts / f"images{i:03d}.npy")]
+    # for i in range(num_samples):
+    #     imgs = [scopyon.Image(data) for data in numpy.load(generation_artifacts / f"images{i:03d}.npy")]
+    for image_npy_path in generation_artifacts.glob('images*.npy'):
+        mobj = re.match('images(\d+).npy', image_npy_path.name)
+        assert mobj is not None
+        i = int(mobj.group(1))
+        imgs = [scopyon.Image(data) for data in numpy.load(image_npy_path)]
         spots = [
             scopyon.analysis.spot_detection(
                 img.as_array(),
                 min_sigma=min_sigma, max_sigma=max_sigma, threshold=threshold, overlap=overlap)
             for img in imgs]
+
+        # timepoints = numpy.linspace(0, interval * num_frames, num_frames + 1)
+        timepoints = numpy.arange(0, len(spots), dtype=numpy.float64)
 
         spots_ = []
         for t, data in zip(timepoints, spots):
@@ -121,8 +116,7 @@ def kaizu_analysis1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict
                 for spot in spots[0]]
         imgs[0].save(artifacts / f"spots{i:03d}_000.png", shapes=shapes)
 
-        print("{} spots are detected in {} frames.".format(len(spots_), len(imgs)))
-        #log_metric("num_spots", len(spots_))
+        # print("{} spots are detected in {} frames.".format(len(spots_), len(imgs)))
 
     return artifacts.absolute().as_uri(), {"num_spots": len(spots_)}
 

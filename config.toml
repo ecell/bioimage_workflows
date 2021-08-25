@@ -26,9 +26,9 @@ tracking_uri = "http://20.89.40.85:5000"
     min_sigma = 1
     threshold = 50.0
     overlap = 0.5
-    num_samples = 1
-    num_frames = 100
-    interval = 0.033
+    # num_samples = 1
+    # num_frames = 100
+    # interval = 0.033
   [analysis.outputs]
     artifacts = "./artifacts"
 
