@@ -61,11 +61,15 @@ def run_rule(run_name, config, inputs=(), idx=None, persistent=False, rootpath='
             log_artifacts(artifacts.replace("file://", ""))
             for key, value in metrics.items():
                 log_metric(key, value)
+
+    if run is None:
+        print('Something wrong at "{run_name}"')
     return run
 
 
 if __name__ == "__main__":
     import argparse
+    import os
 
     parser = argparse.ArgumentParser(description='Run the workflow')
     parser.add_argument('-p', '--persistent', help='Stop removing temporal aritfact directories', action='store_true')
@@ -81,7 +85,7 @@ if __name__ == "__main__":
     config = read_toml(args.input)
     expr_name = config["experiment"]
 
-    mlflow.set_tracking_uri(config["tracking_uri"])
+    mlflow.set_tracking_uri(os.environ["MLFLOW_TRACKING_URI"])
     tracking_uri = mlflow.get_tracking_uri()
     print("Current tracking uri: {}".format(tracking_uri))
 
@@ -106,9 +110,6 @@ if __name__ == "__main__":
 
         for idx in range(len(config['analysis'])):
             run = run_rule('analysis', config, inputs=(generation_run_id, ), idx=idx, persistent=persistent, rootpath=rootpath)
-
-            if run is None:
-                print("Something wrong at analysis")
 
     # ## toml には書いてあってとしても、generationのrun id
     # ## runidから、指定した、フォルダなりファイルを扱うようにする。

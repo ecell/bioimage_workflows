@@ -1,5 +1,4 @@
 experiment = "experiment1"
-tracking_uri = "http://20.89.40.85:5000"
 
 [[generation]]
   function = "user_functions.generation1"
