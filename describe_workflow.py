@@ -56,48 +56,52 @@ def run_rule(run_name, config, inputs=(), idx=None, persistent=False, rootpath='
                 log_metric(key, value)
     return run
 
-import argparse
 
-parser = argparse.ArgumentParser(description='Run the workflow')
-parser.add_argument('-p', '--persistent', help='Stop removing temporal aritfact directories', action='store_true')
-parser.add_argument('-i', '--input', help='A toml file ("./config.toml")', default='config.toml')
-parser.add_argument('-o', '--output', help='Set the root directory for reserving artifacts locally ("./artifacts")', default='artifacts')
-args = parser.parse_args()
+if __name__ == "__main__":
+    import argparse
 
-persistent = args.persistent
+    parser = argparse.ArgumentParser(description='Run the workflow')
+    parser.add_argument('-p', '--persistent', help='Stop removing temporal aritfact directories', action='store_true')
+    parser.add_argument('-i', '--input', help='A toml file ("./config.toml")', default='config.toml')
+    parser.add_argument('-o', '--output', help='Set the root directory for reserving artifacts locally ("./artifacts")', default='artifacts')
+    args = parser.parse_args()
 
-rootpath = pathlib.Path(args.output)
-rootpath.mkdir(parents=True, exist_ok=True)
+    persistent = args.persistent
 
-config = read_toml(args.input)
-expr_name = config["experiment"]
+    rootpath = pathlib.Path(args.output)
+    rootpath.mkdir(parents=True, exist_ok=True)
 
-mlflow.set_tracking_uri(config["tracking_uri"])
-tracking_uri = mlflow.get_tracking_uri()
-print("Current tracking uri: {}".format(tracking_uri))
+    config = read_toml(args.input)
+    expr_name = config["experiment"]
 
-if mlflow.get_experiment_by_name(expr_name) is None:
-    #mlflow.create_experiment(expr_name, azure_blob)
-    mlflow.create_experiment(expr_name)
-mlflow.set_experiment(expr_name)
+    mlflow.set_tracking_uri(config["tracking_uri"])
+    tracking_uri = mlflow.get_tracking_uri()
+    print("Current tracking uri: {}".format(tracking_uri))
 
-client = MlflowClient()
-# from mlflow_utils import _get_or_run
+    if mlflow.get_experiment_by_name(expr_name) is None:
+        #mlflow.create_experiment(expr_name, azure_blob)
+        mlflow.create_experiment(expr_name)
+    mlflow.set_experiment(expr_name)
 
-# MLFlow の run を開始する
-# ここで、entrypoint名（または、認識できる名前）としてgenerationを渡す。
-# mlflowのrunidを習得できるようにしておく。
+    client = MlflowClient()
 
-run = run_rule('generation', config, inputs=(), idx=0, persistent=persistent, rootpath=rootpath)
+    # MLFlow の run を開始する
+    # ここで、entrypoint名（または、認識できる名前）としてgenerationを渡す。
+    # mlflowのrunidを習得できるようにしておく。
 
-## さきほど取得しておいた、runidをもとに、artifactsを取得するようにする
+    # run = run_rule('generation', config, inputs=(), idx=0, persistent=persistent, rootpath=rootpath)
+    generation = [run_rule('generation', config, inputs=(), idx=idx, persistent=persistent, rootpath=rootpath) for idx in range(len(config['generation']))]
 
-generation_run_id = run.info.run_id
+    ## さきほど取得しておいた、runidをもとに、artifactsを取得するようにする
 
-run = run_rule('analysis', config, inputs=(generation_run_id, ), idx=0, persistent=persistent, rootpath=rootpath)
+    for run in generation:
+        generation_run_id = run.info.run_id
 
-if run is None:
-    print("Something wrong at analysis")
+        for idx in range(len(config['analysis'])):
+            run = run_rule('analysis', config, inputs=(generation_run_id, ), idx=idx, persistent=persistent, rootpath=rootpath)
 
-# ## toml には書いてあってとしても、generationのrun id
-# ## runidから、指定した、フォルダなりファイルを扱うようにする。
+            if run is None:
+                print("Something wrong at analysis")
+
+    # ## toml には書いてあってとしても、generationのrun id
+    # ## runidから、指定した、フォルダなりファイルを扱うようにする。

@@ -26,24 +26,16 @@ tracking_uri = "http://20.89.40.85:5000"
     min_sigma = 1
     threshold = 50.0
     overlap = 0.5
-    # num_samples = 1
-    # num_frames = 100
-    # interval = 0.033
   [analysis.outputs]
     artifacts = "./artifacts"
 
-# [analysis2]
-#   [analysis2.params]
-#     seed = 123
-#     max_distance = 50.0
-#     num_samples = 1
-#     num_frames = 100
-#     interval = 0.033
-#   [analysis2.outputs]
-#     artifacts = "./artifacts"
-# 
-# [evaluation1]
-#   [evaluation1.params]
-#     artifacts = "./artifacts"
-#   [evaluation1.outputs]
-#     artifacts = "./artifacts"
+[[analysis]]
+  function = "kaizu_analysis1"
+
+  [analysis.params]
+    max_sigma = 4
+    min_sigma = 1
+    threshold = 100.0
+    overlap = 0.5
+  [analysis.outputs]
+    artifacts = "./artifacts"
