@@ -13,7 +13,7 @@ from mlflow.entities import RunStatus
 # Import our own function
 from bioimage_workflow.toml import read_toml
 from bioimage_workflow.utils import mkdtemp_persistent
-from function_list import kaizu_generation1, kaizu_analysis1
+from function_list import generation1, analysis1
 
 def download_artifacts(run_id, path='', dst_path=None):
     print(f'run_id = "{run_id}"')

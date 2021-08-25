@@ -7,7 +7,8 @@ import re
 from typing import Tuple
 PathLike = typing.Union[str, pathlib.Path]
 
-def kaizu_generation1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> Tuple[str, dict]:
+
+def generation1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> Tuple[str, dict]:
     assert len(inputs) == 0
 
     seed = params['seed']
@@ -15,6 +16,9 @@ def kaizu_generation1(inputs: Tuple[PathLike, ...], output: PathLike, params: di
     num_samples = params["num_samples"]
     num_frames = params["num_frames"]
     exposure_time = params['exposure_time']
+
+    assert num_samples < 1000
+    assert num_frames < 1000
 
     Nm = [100, 100, 100]
     Dm = [0.222e-12, 0.032e-12, 0.008e-12]
@@ -56,7 +60,8 @@ def kaizu_generation1(inputs: Tuple[PathLike, ...], output: PathLike, params: di
         numpy.save(artifacts / f"inputs{i:03d}.npy", inputs_data_)
 
         numpy.save(artifacts / f"images{i:03d}.npy", numpy.array([img.as_array() for img, infodict in ret]))
-        ret[0][0].save(artifacts / f"image{i:03d}_000.png")
+        for j, (img, _) in enumerate(ret):
+            img.save(artifacts / f"image{i:03d}_{j:03d}.png")
 
         true_data = []
         for t, (_, infodict) in zip(timepoints, ret):
@@ -66,7 +71,7 @@ def kaizu_generation1(inputs: Tuple[PathLike, ...], output: PathLike, params: di
 
     return artifacts.absolute().as_uri(), {}
 
-def kaizu_analysis1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> Tuple[str, dict]:
+def analysis1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> Tuple[str, dict]:
     assert len(inputs) == 1
 
     min_sigma = params["min_sigma"]
@@ -112,15 +117,16 @@ def kaizu_analysis1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict
         numpy.save(artifacts / f"spots{i:03d}.npy", spots_)
 
         r = 6
-        shapes = [dict(x=spot[0], y=spot[1], sigma=r, color='red')
-                for spot in spots[0]]
-        imgs[0].save(artifacts / f"spots{i:03d}_000.png", shapes=shapes)
+        for j, (img, spots_) in enumerate(zip(imgs, spots)):
+            shapes = [dict(x=spot[0], y=spot[1], sigma=r, color='red')
+                      for spot in spots_]
+            imgs[0].save(artifacts / f"spots{i:03d}_{j:03d}.png", shapes=shapes)
 
         # print("{} spots are detected in {} frames.".format(len(spots_), len(imgs)))
 
     return artifacts.absolute().as_uri(), {"num_spots": len(spots_)}
 
-# def kaizu_analysis2(params: dict, generation_artifacts: str, analysis1_artifacts: str) -> str:
+# def analysis2(params: dict, generation_artifacts: str, analysis1_artifacts: str) -> str:
 #     seed = params["seed"]
 #     max_distance = params["max_distance"]
 #     num_samples = params["num_samples"]

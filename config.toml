@@ -2,7 +2,7 @@ experiment = "experiment1"
 tracking_uri = "http://20.89.40.85:5000"
 
 [[generation]]
-  function = "kaizu_generation1"
+  function = "generation1"
 
   [generation.params]
     seed = 123
@@ -14,7 +14,7 @@ tracking_uri = "http://20.89.40.85:5000"
     exposure_time = 0.033
 
 [[analysis]]
-  function = "kaizu_analysis1"
+  function = "analysis1"
 
   [analysis.params]
     max_sigma = 4
@@ -23,7 +23,7 @@ tracking_uri = "http://20.89.40.85:5000"
     overlap = 0.5
 
 [[analysis]]
-  function = "kaizu_analysis1"
+  function = "analysis1"
 
   [analysis.params]
     max_sigma = 4
