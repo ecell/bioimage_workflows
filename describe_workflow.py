@@ -94,8 +94,8 @@ if __name__ == "__main__":
 
     ## さきほど取得しておいた、runidをもとに、artifactsを取得するようにする
 
-    for run in generation:
-        generation_run_id = run.info.run_id
+    for generation_run in generation:
+        generation_run_id = generation_run.info.run_id
 
         for idx in range(len(config['analysis'])):
             run = run_rule('analysis', config, inputs=(generation_run_id, ), idx=idx, persistent=persistent, rootpath=rootpath)
