@@ -78,9 +78,6 @@ def analysis1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> T
     max_sigma = params["max_sigma"]
     threshold = params["threshold"]
     overlap = params["overlap"]
-    # num_samples = params["num_samples"]
-    # num_frames = params["num_frames"]
-    # interval = params["interval"]
 
     generation_artifacts = inputs[0]
     artifacts = output
@@ -94,8 +91,7 @@ def analysis1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> T
     import warnings
     warnings.simplefilter('ignore', RuntimeWarning)
 
-    # for i in range(num_samples):
-    #     imgs = [scopyon.Image(data) for data in numpy.load(generation_artifacts / f"images{i:03d}.npy")]
+    num_spots = 0
     for image_npy_path in generation_artifacts.glob('images*.npy'):
         mobj = re.match('images(\d+).npy', image_npy_path.name)
         assert mobj is not None
@@ -107,7 +103,6 @@ def analysis1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> T
                 min_sigma=min_sigma, max_sigma=max_sigma, threshold=threshold, overlap=overlap)
             for img in imgs]
 
-        # timepoints = numpy.linspace(0, interval * num_frames, num_frames + 1)
         timepoints = numpy.arange(0, len(spots), dtype=numpy.float64)
 
         spots_ = []
@@ -122,9 +117,11 @@ def analysis1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> T
                       for spot in spots_]
             imgs[0].save(artifacts / f"spots{i:03d}_{j:03d}.png", shapes=shapes)
 
-        # print("{} spots are detected in {} frames.".format(len(spots_), len(imgs)))
+        num_spots = len(spots_)
+        # print("{} spots are detected in {} frames.".format(num_spots, len(imgs)))
 
-    return artifacts.absolute().as_uri(), {"num_spots": len(spots_)}
+    metrics = {"num_spots": num_spots}  #XXX: optional
+    return artifacts.absolute().as_uri(), metrics
 
 # def analysis2(params: dict, generation_artifacts: str, analysis1_artifacts: str) -> str:
 #     seed = params["seed"]
