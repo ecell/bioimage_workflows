@@ -1,6 +1,7 @@
 import sys
 import tempfile
 import pathlib
+import importlib
 
 from mlflow import log_metric, log_param, log_artifacts
 import mlflow
@@ -13,7 +14,13 @@ from mlflow.entities import RunStatus
 # Import our own function
 from bioimage_workflow.toml import read_toml
 from bioimage_workflow.utils import mkdtemp_persistent
-from function_list import generation1, analysis1
+
+
+def get_function(function_path):
+    function_path = function_path.split('.')
+    module = importlib.import_module('.'.join(function_path[: -1]))
+    func = getattr(module, function_path[-1])
+    return func
 
 def download_artifacts(run_id, path='', dst_path=None):
     print(f'run_id = "{run_id}"')
@@ -34,7 +41,7 @@ def run_rule(run_name, config, inputs=(), idx=None, persistent=False, rootpath='
         print(f'run_id = "{run.info.run_id}"')
         params = target["params"]
         print(f'params = "{params}"')
-        func = eval(func_name)
+        func = get_function(func_name)
 
         for i, run_id in enumerate(inputs):
             log_param(f'inputs{i}', run_id)
