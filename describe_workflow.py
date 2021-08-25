@@ -26,16 +26,22 @@ def download_artifacts(run_id, path='', dst_path=None):
 def run_rule(run_name, config, inputs=(), idx=None, persistent=False, rootpath='.'):
     target = config[run_name] if idx is None else config[run_name][idx]
 
-    run = None
     with mlflow.start_run(run_name=run_name) as run:
         func_name = target["function"]
-        print(run_name, func_name)
+        print(f'run_name = "{run_name}", func_name = "{func_name}"')
         print(mlflow.get_artifact_uri())
         run = mlflow.active_run()
-        print('run_id = "{run.info.run_id}"')
+        print(f'run_id = "{run.info.run_id}"')
         params = target["params"]
         print(f'params = "{params}"')
         func = eval(func_name)
+
+        for i, run_id in enumerate(inputs):
+            log_param(f'inputs{i}', run_id)
+        log_param('output', run.info.run_id)  #XXX: optional
+
+        for key, value in params.items():
+            log_param(key, value)
 
         with mkdtemp_persistent(persistent=persistent, dir=rootpath) as outname:
             working_dir = pathlib.Path(outname)
@@ -43,8 +49,6 @@ def run_rule(run_name, config, inputs=(), idx=None, persistent=False, rootpath='
             output_path = working_dir / 'output'
             output_path.mkdir()
             artifacts, metrics = func(input_paths, output_path, params)
-            for key, value in params.items():
-                log_param(key, value)
             print(f'artifacts = "{artifacts}"')
             print(f'metrics = "{metrics}"')
             log_artifacts(artifacts.replace("file://", ""))
