@@ -23,15 +23,15 @@ experiment = "experiment1"
 
 [[analysis]]
   template = "analysis1"
-  analysis.params.threshold = 50.0
+  params.threshold = 50.0
 
 [[analysis]]
   template = "analysis1"
-  analysis.params.threshold = 75.0
+  params.threshold = 75.0
 
 [[analysis]]
   template = "analysis1"
-  analysis.params.threshold = 100.0
+  params.threshold = 100.0
 
 [[evaluation]]
   function = "user_functions.evaluation1"
