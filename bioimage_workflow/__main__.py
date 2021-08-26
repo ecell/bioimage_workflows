@@ -3,8 +3,8 @@ import pathlib
 import mlflow
 from mlflow.tracking import MlflowClient
 
-from bioimage_workflow.toml import read_toml
-from bioimage_workflow.utils import run_rule
+from .toml import read_toml
+from .utils import run_rule
 
 
 if __name__ == "__main__":
