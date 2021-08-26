@@ -30,10 +30,34 @@ def download_artifacts(client, run_id, path='', dst_path=None):
     print(f'artifacts_path = "{artifacts_path}"')
     return pathlib.Path(artifacts_path)
 
+def get_rule(config, run_name, idx):
+    target = config[run_name] if idx is None else config[run_name][idx]
+
+    if 'function' in target:
+        target = target.copy()
+        if 'template' in target:
+            print(f'The template given is ignored [{run_name}, {idx}].')
+            del target['template']
+        if 'params' not in target:
+            target['params'] = dict()
+    elif 'template' in target:
+        template = config['template'][target['template']].copy()
+        assert 'template' not in template
+        if 'params' not in template:
+            template['params'] = dict()
+        if 'params' in target:
+            template['params'].update(target['params'])
+        target = template
+    else:
+        raise RuntimeError(f'The given rule [{run_name}, {idx}] has neither function nor template.')
+
+    assert 'function' in target and 'params' in target and 'template' not in target
+    return target
+
 def run_rule(run_name, config, inputs=(), idx=None, persistent=False, rootpath='.', client=None):
     assert client is not None or len(inputs) == 0
 
-    target = config[run_name] if idx is None else config[run_name][idx]
+    target = get_rule(config, run_name, idx)
 
     with mlflow.start_run(run_name=run_name) as run:
         func_name = target["function"]
@@ -68,7 +92,6 @@ def run_rule(run_name, config, inputs=(), idx=None, persistent=False, rootpath='
     if run is None:
         print('Something wrong at "{run_name}"')
     return run
-
 
 
 # import sys

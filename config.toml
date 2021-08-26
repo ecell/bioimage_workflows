@@ -12,23 +12,26 @@ experiment = "experiment1"
     num_frames = 5
     exposure_time = 0.033
 
-[[analysis]]
+[template.analysis1]
   function = "user_functions.analysis1"
 
-  [analysis.params]
+  [template.analysis1.params]
     max_sigma = 4
     min_sigma = 1
     threshold = 50.0
     overlap = 0.5
 
 [[analysis]]
-  function = "user_functions.analysis1"
+  template = "analysis1"
+  analysis.params.threshold = 50.0
 
-  [analysis.params]
-    max_sigma = 4
-    min_sigma = 1
-    threshold = 100.0
-    overlap = 0.5
+[[analysis]]
+  template = "analysis1"
+  analysis.params.threshold = 75.0
+
+[[analysis]]
+  template = "analysis1"
+  analysis.params.threshold = 100.0
 
 [[evaluation]]
   function = "user_functions.evaluation1"
