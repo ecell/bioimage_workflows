@@ -2,6 +2,7 @@ import tempfile
 import contextlib
 import importlib
 import pathlib
+import re
 
 import mlflow
 from mlflow import log_metric, log_param, log_artifacts
@@ -55,7 +56,7 @@ def get_rule(config, run_name, idx):
     assert 'function' in target and 'params' in target and 'template' not in target
     return target
 
-def run_rule(run_name, config, inputs=(), idx=None, persistent=False, rootpath='.', client=None):
+def run_rule(run_name, config, inputs=(), idx=None, persistent=False, rootpath='.', client=None, expand=True):
     assert client is not None or len(inputs) == 0
 
     target = get_rule(config, run_name, idx)
@@ -67,12 +68,25 @@ def run_rule(run_name, config, inputs=(), idx=None, persistent=False, rootpath='
     params = target["params"]
     print(f'params = "{params}"')
 
-    params_ = params.copy()
-    params_['function'] = func_name
+    all_params = params.copy()
+    assert 'function' not in all_params
+    all_params['function'] = func_name
     for i, run_id in enumerate(inputs):
-        params_[f'inputs{i}'] = run_id
+        key = f'inputs{i}'
+        assert key not in all_params
+        all_params[key] = run_id
 
-    run = check_if_already_ran(client, run_name, params_)
+    if expand:
+        for run_id in inputs:
+            for key, value in client.get_run(run_id).data.params.items():
+                if key == 'function' or re.match('inputs\d+', key) is not None:
+                    continue
+                elif key in all_params:
+                    assert value == all_params[key]
+                    continue
+                all_params[key] = value
+
+    run = check_if_already_ran(client, run_name, all_params)
     if run is not None:
         return run
 
@@ -81,22 +95,32 @@ def run_rule(run_name, config, inputs=(), idx=None, persistent=False, rootpath='
         run = mlflow.active_run()
         print(f'run_id = "{run.info.run_id}"')
 
-        # params_['output'] = run.info.run_id  #XXX: optional
-
-        for key, value in params_.items():
+        for key, value in all_params.items():
             log_param(key, value)
 
         with mkdtemp_persistent(persistent=persistent, dir=rootpath) as outname:
             working_dir = pathlib.Path(outname)
-            input_paths = tuple(download_artifacts(client, run_id, dst_path=working_dir / f'input{i}') for i, run_id in enumerate(inputs))
+            input_paths = tuple(
+                download_artifacts(client, run_id, dst_path=working_dir / f'input{i}')
+                for i, run_id in enumerate(inputs))
             output_path = working_dir / 'output'
             output_path.mkdir()
             artifacts, metrics = func(input_paths, output_path, params)
             print(f'artifacts = "{artifacts}"')
             print(f'metrics = "{metrics}"')
+
             log_artifacts(artifacts.replace("file://", ""))
-            for key, value in metrics.items():
-                log_metric(key, value)
+
+        if expand:
+            for run_id in inputs:
+                for key, value in client.get_run(run_id).data.metrics.items():
+                    if key in metrics:
+                        assert value == metrics[key]
+                        continue
+                    metrics[key] = value
+
+        for key, value in metrics.items():
+            log_metric(key, value)
 
     if run is None:
         print('Something wrong at "{run_name}"')
@@ -119,8 +143,8 @@ def check_if_already_ran(client, run_name, params, experiment_id=None):
         full_run = client.get_run(run_info.run_id)
 
         if run_info.to_proto().status != RunStatus.FINISHED:
-            print("Run matched, but is not FINISHED, so skipping "
-                + f"(run_id={run_info.run_id}, status={run_info.status})")
+            # print("Run matched, but is not FINISHED, so skipping "
+            #     + f"(run_id={run_info.run_id}, status={run_info.status})")
             continue
 
         match_failed = False
