@@ -26,7 +26,7 @@ def download_artifacts(client, run_id, path='', dst_path=None):
     print(f'run_id = "{run_id}"')
     dst_path.mkdir()
     artifacts_path = client.download_artifacts(run_id=run_id, path=path, dst_path=str(dst_path))
-    print("download from Azure worked!!")
+    # print("download from Azure worked!!")
     print(f'artifacts_path = "{artifacts_path}"')
     return pathlib.Path(artifacts_path)
 
