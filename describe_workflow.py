@@ -43,6 +43,7 @@ def run_rule(run_name, config, inputs=(), idx=None, persistent=False, rootpath='
         print(f'params = "{params}"')
         func = get_function(func_name)
 
+        log_param('function', func_name)
         for i, run_id in enumerate(inputs):
             log_param(f'inputs{i}', run_id)
         log_param('output', run.info.run_id)  #XXX: optional
@@ -108,8 +109,10 @@ if __name__ == "__main__":
     for generation_run in generation:
         generation_run_id = generation_run.info.run_id
 
-        for idx in range(len(config['analysis'])):
-            run = run_rule('analysis', config, inputs=(generation_run_id, ), idx=idx, persistent=persistent, rootpath=rootpath)
+        for analysis_idx in range(len(config['analysis'])):
+            analysis_run = run_rule('analysis', config, inputs=(generation_run_id, ), idx=analysis_idx, persistent=persistent, rootpath=rootpath)
+            for evaluation_idx in range(len(config['evaluation'])):
+                evaluation_run = run_rule('evaluation', config, inputs=(generation_run_id, analysis_run.info.run_id), idx=evaluation_idx, persistent=persistent, rootpath=rootpath)
 
     # ## toml には書いてあってとしても、generationのrun id
     # ## runidから、指定した、フォルダなりファイルを扱うようにする。

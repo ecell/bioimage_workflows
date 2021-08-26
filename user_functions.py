@@ -92,7 +92,7 @@ def analysis1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> T
     warnings.simplefilter('ignore', RuntimeWarning)
 
     num_spots = 0
-    for image_npy_path in generation_artifacts.glob('images*.npy'):
+    for image_npy_path in sorted(generation_artifacts.glob('images*.npy')):
         mobj = re.match('images(\d+).npy', image_npy_path.name)
         assert mobj is not None
         i = int(mobj.group(1))
@@ -121,6 +121,110 @@ def analysis1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> T
         # print("{} spots are detected in {} frames.".format(num_spots, len(imgs)))
 
     metrics = {"num_spots": num_spots}  #XXX: optional
+    return artifacts.absolute().as_uri(), metrics
+
+def evaluation1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> Tuple[str, dict]:
+    assert len(inputs) == 2
+
+    max_distance = params["max_distance"]
+
+    generation_artifacts = inputs[0]
+    analysis_artifacts = inputs[1]
+    artifacts = output
+
+    #XXX: HERE
+
+    import numpy
+
+    rates = numpy.zeros(4, dtype=int)
+
+    closest = []
+    for true_npy_path in sorted(generation_artifacts.glob('true_data*.npy')):
+        mobj = re.match('true_data(\d+).npy', true_npy_path.name)
+        assert mobj is not None
+        i = int(mobj.group(1))
+        true_data_ = numpy.load(true_npy_path)
+        t = true_data_[0, 0]
+        true_data = [[true_data_[0, 1: ]]]
+        for row in true_data_[1: ]:
+            if row[0] == t:
+                true_data[-1].append(row[1: ])
+            else:
+                t = row[0]
+                true_data[-1] = numpy.asarray(true_data[-1])
+                true_data.append([row[1: ]])
+        else:
+            true_data[-1] = numpy.asarray(true_data[-1])
+
+        spots_ = numpy.load(analysis_artifacts / f"spots{i:03d}.npy")
+        t = spots_[0, 0]
+        spots = [[spots_[0, 1: ]]]
+        for row in spots_[1: ]:
+            if row[0] == t:
+                spots[-1].append(row[1: ])
+            else:
+                t = row[0]
+                spots[-1] = numpy.asarray(spots[-1])
+                spots.append([row[1: ]])
+        else:
+            spots[-1] = numpy.asarray(spots[-1])
+
+        for true_data_, spots_ in zip(true_data, spots):
+            data = true_data_[:, 3: 5]
+            for spot in spots_:
+                distance = data - spot[0: 2]
+                idx = (distance ** 2).sum(axis=1).argmin()
+                closest.append(distance[idx])
+
+                distance = numpy.sqrt(distance[idx] ** 2).sum()
+                if distance < max_distance:
+                    rates[0] += 1
+                else:
+                    rates[1] += 1
+
+            for spot in data:
+                distance = spots_[:, : 2] - spot
+                distance = (distance ** 2).sum(axis=1)
+                idx = distance.argmin()
+                distance = numpy.sqrt(distance[idx])
+                if distance < max_distance:
+                    rates[2] += 1
+                else:
+                    rates[3] += 1
+
+    closest = numpy.asarray(closest).T
+
+    x_mean, y_mean = numpy.average(closest[0]), numpy.average(closest[1])
+    x_std, y_std = numpy.std(closest[0]), numpy.std(closest[1])
+    # print(f"Average along x-axis = {x_mean:+.5f} pixels, std = {x_std}")
+    # print(f"Average along y-axis = {y_mean:+.5f} pixels, std = {y_std}")
+
+    import plotly.express as px
+    w = h = 1
+    H, xedges, yedges = numpy.histogram2d(x=closest[0], y=closest[1], bins=41, range=[[-w, +w], [-h, +h]])
+    fig = px.imshow(H, x=(xedges[: -1]+xedges[1: ])*0.5, y=(yedges[: -1]+yedges[1: ])*0.5)
+    # fig.show()
+    fig.write_image(str(artifacts / "heatmap1.png"))
+
+    # r = 6
+    # idx = 0
+    # shapes = [dict(x=row[0], y=row[1], sigma=r, color='green')
+    #         for row in true_data[idx][:, [3, 4]]]
+    # shapes += [dict(x=spot[0], y=spot[1], sigma=r, color='red')
+    #         for spot in spots[idx]]
+    # scopyon.Image(numpy.load(generation_artifacts / "images{:03d}.npy".format(num_samples - 1))[idx]).show(shapes=shapes)
+
+    r = rates[: 2].sum() / rates[2: ].sum()
+    miss_count = rates[1] / rates[: 2].sum()
+    missing = rates[3] / rates[2: ].sum()
+    # print(f"The ratio between detected and expected = {r:.3f}")
+    # print(f"The fraction of miss counted spots = {miss_count:.3f}")
+    # print(f"The fraction of spots not detected = {missing:.3f}")
+
+    metrics = {
+        'x_mean': x_mean, "x_std": x_std, "y_mean": y_mean, 'y_std': y_std,
+        'r': r, 'miss_count': miss_count, 'missing': missing,
+        }
     return artifacts.absolute().as_uri(), metrics
 
 # def analysis2(params: dict, generation_artifacts: str, analysis1_artifacts: str) -> str:

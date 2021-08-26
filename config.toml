@@ -29,3 +29,9 @@ experiment = "experiment1"
     min_sigma = 1
     threshold = 100.0
     overlap = 0.5
+
+[[evaluation]]
+  function = "user_functions.evaluation1"
+
+  [evaluation.params]
+    max_distance = 5.0
