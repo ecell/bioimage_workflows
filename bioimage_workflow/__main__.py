@@ -7,33 +7,8 @@ from .toml import read_toml
 from .utils import run_rule
 
 
-if __name__ == "__main__":
-    import os
-    tracking_uri = os.environ["MLFLOW_TRACKING_URI"]
-
-    import argparse
-    parser = argparse.ArgumentParser(description='Run the workflow')
-    parser.add_argument(
-        '-p', '--persistent', action='store_true', help='Stop removing temporal aritfact directories')
-    parser.add_argument(
-        '--no-cache', action='store_true', help='Never skip even when the same run has been already run')
-    parser.add_argument(
-        '--ignore-tags', action='store_true', help='Ignore tags except for run_name when comparing runs')
-    parser.add_argument(
-        '-i', '--input', default='config.toml', help='A toml file ("./config.toml")')
-    parser.add_argument(
-        '-o', '--output', default='artifacts',
-        help='Set the root directory for reserving artifacts locally ("./artifacts")')
-    args = parser.parse_args()
-
-    persistent = args.persistent
-    use_cache = not args.no_cache
-    ignore_tags = args.ignore_tags
-
-    rootpath = pathlib.Path(args.output)
-    rootpath.mkdir(parents=True, exist_ok=True)
-
-    config = read_toml(args.input)
+def main(filename, tracking_uri, rootpath, persistent, use_cache, ignore_tags):
+    config = read_toml(filename)
     expr_name = config["experiment"]
     print(f'experiment = {expr_name}')
 
@@ -67,3 +42,34 @@ if __name__ == "__main__":
     for idx in range(len(config['evaluation'])):
         for inputs in analysis:
             run = run_rule('evaluation', config, inputs=inputs, idx=idx, **run_opts)
+
+if __name__ == "__main__":
+    import os
+    tracking_uri = os.environ["MLFLOW_TRACKING_URI"]
+
+    import argparse
+    parser = argparse.ArgumentParser(description='Run the workflow')
+    parser.add_argument('inputs', type=str, nargs='*', help='Input toml files ("./config.toml")')
+    parser.add_argument(
+        '-p', '--persistent', action='store_true', help='Stop removing temporal aritfact directories')
+    parser.add_argument(
+        '--no-cache', action='store_true', help='Never skip even when the same run has been already run')
+    parser.add_argument(
+        '--ignore-tags', action='store_true', help='Ignore tags except for run_name when comparing runs')
+    parser.add_argument(
+        '-o', '--output', default='artifacts',
+        help='Set the root directory for reserving artifacts locally ("./artifacts")')
+    args = parser.parse_args()
+
+    persistent = args.persistent
+    use_cache = not args.no_cache
+    ignore_tags = args.ignore_tags
+
+    rootpath = pathlib.Path(args.output)
+    rootpath.mkdir(parents=True, exist_ok=True)
+
+    if len(args.inputs) == 0:
+        main('config.toml', tracking_uri, rootpath, persistent, use_cache, ignore_tags)
+    else:
+        for filename in args.inputs:
+            main(filename, tracking_uri, rootpath, persistent, use_cache, ignore_tags)
