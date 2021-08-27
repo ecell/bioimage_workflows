@@ -3,6 +3,7 @@ import contextlib
 import importlib
 import pathlib
 import re
+import copy
 
 import mlflow
 from mlflow import log_metric, log_param, log_artifacts
@@ -33,7 +34,7 @@ def download_artifacts(client, run_id, path='', dst_path=None):
 
 def get_rule(target, config):
     if 'function' in target:
-        target = target.copy()
+        target = copy.deepcopy(target)
         if 'template' in target:
             print(f'The template given is ignored [{run_name}, {idx}].')
             del target['template']
@@ -41,7 +42,7 @@ def get_rule(target, config):
             target['params'] = dict()
     elif 'template' in target:
         template = config['template'][target['template']]
-        template = template.copy()
+        template = copy.deepcopy(template)
         assert 'template' not in template
         if 'params' not in template:
             template['params'] = dict()
@@ -49,7 +50,7 @@ def get_rule(target, config):
             template['params'].update(target['params'])
         target = template
     elif 'children' in target:
-        target = target.copy()
+        target = copy.deepcopy(target)
         children = [get_rule(child, config) for child in target['children']]
         target['children'] = children
     else:
