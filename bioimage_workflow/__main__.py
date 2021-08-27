@@ -31,12 +31,18 @@ def main(filename, tracking_uri, rootpath, persistent, use_cache, ignore_tags):
         (run_rule('generation', config, inputs=(), idx=idx, **run_opts).info.run_id, )
         for idx in range(len(config['generation']))]
 
+    if 'analysis' not in config:
+        return
+
     #XXX: analysis
     analysis = []
     for idx in range(len(config['analysis'])):
         for inputs in generation:
             run = run_rule('analysis', config, inputs=inputs, idx=idx, **run_opts)
             analysis.append(inputs + (run.info.run_id, ))
+
+    if 'evaluation' not in config:
+        return
 
     #XXX: evaluation
     for idx in range(len(config['evaluation'])):
