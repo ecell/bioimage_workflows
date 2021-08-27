@@ -16,16 +16,12 @@ def generation1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) ->
     num_samples = params["num_samples"]
     num_frames = params["num_frames"]
     exposure_time = params['exposure_time']
+    Nm = params['Nm']
+    Dm = params['Dm']
+    transmat = params['transmat']
 
     assert num_samples < 1000
     assert num_frames < 1000
-
-    Nm = [100, 100, 100]
-    Dm = [0.222e-12, 0.032e-12, 0.008e-12]
-    transmat = [
-        [0.0, 0.5, 0.0],
-        [0.5, 0.0, 0.2],
-        [0.0, 1.0, 0.0]]
 
     artifacts = output
 
@@ -37,6 +33,7 @@ def generation1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) ->
     import scopyon
 
     config = scopyon.DefaultConfiguration()
+    # config.environ.processes = 10
     config.default.effects.photo_bleaching.switch = False
     config.default.detector.exposure_time = exposure_time
     pixel_length = config.default.detector.pixel_length / config.default.magnification
@@ -105,11 +102,11 @@ def analysis1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> T
 
         timepoints = numpy.arange(0, len(spots), dtype=numpy.float64)
 
-        spots_ = []
+        all_spots = []
         for t, data in zip(timepoints, spots):
-            spots_.extend(([t] + list(row) for row in data))
-        spots_ = numpy.array(spots_)
-        numpy.save(artifacts / f"spots{i:03d}.npy", spots_)
+            all_spots.extend(([t] + list(row) for row in data))
+        all_spots = numpy.array(all_spots)
+        numpy.save(artifacts / f"spots{i:03d}.npy", all_spots)
 
         r = 6
         for j, (img, spots_) in enumerate(zip(imgs, spots)):
@@ -117,7 +114,7 @@ def analysis1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> T
                       for spot in spots_]
             imgs[0].save(artifacts / f"spots{i:03d}_{j:03d}.png", shapes=shapes)
 
-        num_spots = len(spots_)
+        num_spots += len(all_spots)
         # print("{} spots are detected in {} frames.".format(num_spots, len(imgs)))
 
     metrics = {"num_spots": num_spots}  #XXX: optional
