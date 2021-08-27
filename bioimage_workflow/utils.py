@@ -31,9 +31,7 @@ def download_artifacts(client, run_id, path='', dst_path=None):
     print(f'artifacts_path = "{artifacts_path}"')
     return pathlib.Path(artifacts_path)
 
-def get_rule(config, run_name, idx):
-    target = config[run_name] if idx is None else config[run_name][idx]
-
+def get_rule(target, config):
     if 'function' in target:
         target = target.copy()
         if 'template' in target:
@@ -50,29 +48,53 @@ def get_rule(config, run_name, idx):
         if 'params' in target:
             template['params'].update(target['params'])
         target = template
+    elif 'children' in target:
+        target = target.copy()
+        children = [get_rule(child, config) for child in target['children']]
+        target['children'] = children
     else:
-        raise RuntimeError(f'The given rule [{run_name}, {idx}] has neither function nor template.')
+        raise RuntimeError(f'The given rule [{target}] has neither function nor template.')
 
-    assert 'function' in target and 'params' in target and 'template' not in target
+    assert ('function' in target and 'params' in target) or 'children' in target
+    assert 'template' not in target
     return target
 
 def run_rule(
         run_name, config, inputs=(), idx=None, persistent=False, rootpath='.', client=None,
         expand=True, use_cache=True, ignore_tags=False):
+    target = get_rule(config[run_name] if idx is None else config[run_name][idx], config)
+    return __run_rule(
+        target, run_name, config, inputs, persistent, rootpath, client, expand, use_cache, ignore_tags)
+
+def __run_rule(
+        target, run_name, config, inputs=(), persistent=False, rootpath='.', client=None,
+        expand=True, use_cache=True, ignore_tags=False,
+        nested=False, input_paths=None, output_path=None):
     assert client is not None or len(inputs) == 0
+    assert not nested or (input_paths is not None and output_path is not None)
 
-    target = get_rule(config, run_name, idx)
+    if 'function' in target:
+        func_name = target["function"]
+        print(f'run_name = "{run_name}", func_name = "{func_name}"')
+        func = get_function(func_name)
 
-    func_name = target["function"]
-    print(f'run_name = "{run_name}", func_name = "{func_name}"')
-    func = get_function(func_name)
+        params = target["params"]
+        print(f'params = "{params}"')
+        all_params = params.copy()
+        assert 'function' not in all_params
+        all_params['function'] = target['function']
+    else:
+        assert 'children' in target
 
-    params = target["params"]
-    print(f'params = "{params}"')
-
-    all_params = params.copy()
-    assert 'function' not in all_params
-    all_params['function'] = func_name
+        params = {}
+        all_params = {}
+        all_params['function'] = str([child['function'] for child in target['children']])
+        for child in target['children']:
+            for key, value in child['params'].items():
+                if key in all_params:
+                    assert value == all_params[key]
+                else:
+                    all_params[key] = value
     for i, run_id in enumerate(inputs):
         key = f'inputs{i}'
         assert key not in all_params
@@ -84,16 +106,17 @@ def run_rule(
                 if key == 'function' or re.match('inputs\d+', key) is not None:
                     continue
                 elif key in all_params:
-                    assert value == all_params[key]
+                    assert value == str(all_params[key])
                     continue
                 all_params[key] = value
 
+    print(all_params)
     if use_cache:
         run = check_if_already_ran(client, run_name, all_params, ignore_tags=ignore_tags)
         if run is not None:
             return run
 
-    with mlflow.start_run(run_name=run_name) as run:
+    with mlflow.start_run(run_name=run_name, nested=nested) as run:
         print(mlflow.get_artifact_uri())
         run = mlflow.active_run()
         print(f'run_id = "{run.info.run_id}"')
@@ -101,17 +124,32 @@ def run_rule(
         for key, value in all_params.items():
             log_param(key, value)
 
-        with mkdtemp_persistent(persistent=persistent, dir=rootpath) as outname:
-            working_dir = pathlib.Path(outname)
-            input_paths = tuple(
-                download_artifacts(client, run_id, dst_path=working_dir / f'input{i}')
-                for i, run_id in enumerate(inputs))
-            output_path = working_dir / 'output'
-            output_path.mkdir()
-            artifacts, metrics = func(input_paths, output_path, params)
-            print(f'artifacts = "{artifacts}"')
-            print(f'metrics = "{metrics}"')
+        if not nested:
+            with mkdtemp_persistent(persistent=persistent, dir=rootpath) as outname:
+                working_dir = pathlib.Path(outname)
+                input_paths = tuple(
+                    download_artifacts(client, run_id, dst_path=working_dir / f'input{i}')
+                    for i, run_id in enumerate(inputs))
+                output_path = working_dir / 'output'
+                output_path.mkdir()
 
+                if 'children' not in target:
+                    artifacts, metrics = func(input_paths, output_path, params)
+                    print(f'artifacts = "{artifacts}"')
+                    print(f'metrics = "{metrics}"')
+                    log_artifacts(artifacts.replace("file://", ""))
+                else:
+                    metrics = {}
+                    for child in target['children']:
+                        run = __run_rule(
+                            child, run_name, config, inputs, persistent, rootpath,
+                            client, expand, use_cache, ignore_tags,
+                            nested=True, input_paths=input_paths, output_path=output_path)
+                        metrics.update(run.data.metrics)
+
+                    log_artifacts(output_path.absolute().as_uri().replace("file://", ""))
+        else:
+            artifacts, metrics = func(input_paths, output_path, params)
             log_artifacts(artifacts.replace("file://", ""))
 
         if expand:

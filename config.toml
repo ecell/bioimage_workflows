@@ -27,9 +27,12 @@ experiment = "experiment1"
     threshold = 50.0
     overlap = 0.5
 
+# [[analysis]]
+#   [[analysis.children]]
+#     template = "analysis1"
+
 [[analysis]]
   template = "analysis1"
-  params.threshold = 50.0
 
 [[analysis]]
   template = "analysis1"
