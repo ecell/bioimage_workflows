@@ -7,9 +7,9 @@ experiment = "experiment1"
     seed = 123
     interval = 0.033
     num_samples = 1
-    # num_frames = 100
     # 5 does not guarantee the correctness of the result, but we will use 5 now...
     num_frames = 5
+    # num_frames = 100
     exposure_time = 0.033
     Nm = [100, 100, 100]
     Dm = [0.222e-12, 0.032e-12, 0.008e-12]

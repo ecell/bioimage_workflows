@@ -16,6 +16,10 @@ if __name__ == "__main__":
     parser.add_argument(
         '-p', '--persistent', action='store_true', help='Stop removing temporal aritfact directories')
     parser.add_argument(
+        '--no-cache', action='store_true', help='Never skip even when the same run has been already run')
+    parser.add_argument(
+        '--ignore-tags', action='store_true', help='Ignore tags except for run_name when comparing runs')
+    parser.add_argument(
         '-i', '--input', default='config.toml', help='A toml file ("./config.toml")')
     parser.add_argument(
         '-o', '--output', default='artifacts',
@@ -23,6 +27,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     persistent = args.persistent
+    use_cache = not args.no_cache
+    ignore_tags = args.ignore_tags
 
     rootpath = pathlib.Path(args.output)
     rootpath.mkdir(parents=True, exist_ok=True)
@@ -42,7 +48,8 @@ if __name__ == "__main__":
 
     client = MlflowClient()
 
-    run_opts = dict(persistent=persistent, rootpath=rootpath, client=client)
+    run_opts = dict(
+        persistent=persistent, rootpath=rootpath, client=client, use_cache=use_cache, ignore_tags=ignore_tags)
 
     #XXX: generation
     generation = [

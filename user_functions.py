@@ -38,7 +38,6 @@ def generation1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) ->
     config.default.detector.exposure_time = exposure_time
     pixel_length = config.default.detector.pixel_length / config.default.magnification
     L_2 = config.default.detector.image_size[0] * pixel_length * 0.5
-    L_2
 
     timepoints = numpy.linspace(0, interval * num_frames, num_frames + 1)
     ndim = 2

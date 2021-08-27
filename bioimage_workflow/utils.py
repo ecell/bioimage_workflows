@@ -56,7 +56,9 @@ def get_rule(config, run_name, idx):
     assert 'function' in target and 'params' in target and 'template' not in target
     return target
 
-def run_rule(run_name, config, inputs=(), idx=None, persistent=False, rootpath='.', client=None, expand=True):
+def run_rule(
+        run_name, config, inputs=(), idx=None, persistent=False, rootpath='.', client=None,
+        expand=True, use_cache=True, ignore_tags=False):
     assert client is not None or len(inputs) == 0
 
     target = get_rule(config, run_name, idx)
@@ -86,9 +88,10 @@ def run_rule(run_name, config, inputs=(), idx=None, persistent=False, rootpath='
                     continue
                 all_params[key] = value
 
-    run = check_if_already_ran(client, run_name, all_params)
-    if run is not None:
-        return run
+    if use_cache:
+        run = check_if_already_ran(client, run_name, all_params, ignore_tags=ignore_tags)
+        if run is not None:
+            return run
 
     with mlflow.start_run(run_name=run_name) as run:
         print(mlflow.get_artifact_uri())
@@ -131,7 +134,7 @@ from mlflow.entities import RunStatus
 from mlflow.tracking.fluent import _get_experiment_id
 from mlflow.tracking.context.registry import resolve_tags
 
-def check_if_already_ran(client, run_name, params, experiment_id=None):
+def check_if_already_ran(client, run_name, params, experiment_id=None, ignore_tags=False):
     """Best-effort detection of if a run with the given entrypoint name,
     parameters, and experiment id already ran. The run must have completed
     successfully and have at least the parameters provided.
@@ -150,10 +153,14 @@ def check_if_already_ran(client, run_name, params, experiment_id=None):
         match_failed = False
 
         tags = full_run.data.tags
-        for key, value in resolve_tags().items():
-            if value != tags.get(key):
-                match_failed = True
-                break
+        if not ignore_tags:
+            for key, value in resolve_tags().items():
+                if value != tags.get(key):
+                    match_failed = True
+                    break
+        else:
+            # Only check run_name
+            match_failed = match_failed or (tags.get(mlflow_tags.MLFLOW_RUN_NAME, None) != run_name)
 
         for key, value in params.items():
             if str(value) != str(full_run.data.params.get(key)):
