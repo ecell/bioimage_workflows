@@ -8,6 +8,7 @@ from .utils import run_rule
 
 
 def main(filename, tracking_uri, rootpath, persistent, use_cache, ignore_tags):
+    print(f'filename = {filename}')
     config = read_toml(filename)
     expr_name = config["experiment"]
     print(f'experiment = {expr_name}')

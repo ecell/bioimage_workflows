@@ -24,9 +24,9 @@ def get_function(function_path):
     func = getattr(module, function_path[-1])
     return func
 
-def download_artifacts(client, run_id, path='', dst_path=None):
+def download_artifacts(client, run_id, path='', dst_path=None, exist_ok=False):
     print(f'run_id = "{run_id}"')
-    dst_path.mkdir()
+    dst_path.mkdir(exist_ok=exist_ok)
     artifacts_path = client.download_artifacts(run_id=run_id, path=path, dst_path=str(dst_path))
     # print("download from Azure worked!!")
     print(f'artifacts_path = "{artifacts_path}"')
@@ -115,6 +115,8 @@ def __run_rule(
     if use_cache:
         run = check_if_already_ran(client, run_name, all_params, ignore_tags=ignore_tags)
         if run is not None:
+            if nested:
+                download_artifacts(client, run.info.run_id, dst_path=output_path, exist_ok=True)
             return run
 
     with mlflow.start_run(run_name=run_name, nested=nested) as run:
@@ -142,11 +144,12 @@ def __run_rule(
                 else:
                     metrics = {}
                     for child in target['children']:
-                        run = __run_rule(
+                        child_run = __run_rule(
                             child, run_name, config, inputs, persistent, rootpath,
                             client, expand, use_cache, ignore_tags,
                             nested=True, input_paths=input_paths, output_path=output_path)
-                        metrics.update(run.data.metrics)
+                        metrics.update(child_run.data.metrics)
+                        print(f'metrics = "{metrics}"')
 
                     log_artifacts(output_path.absolute().as_uri().replace("file://", ""))
         else:
@@ -209,6 +212,7 @@ def check_if_already_ran(client, run_name, params, experiment_id=None, ignore_ta
         if match_failed:
             continue
 
+        print(f"Matched [{run_info.run_id}]")
         return client.get_run(run_info.run_id)
     print("No matching run has been found.")
     return None
