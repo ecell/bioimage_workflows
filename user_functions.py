@@ -111,7 +111,7 @@ def analysis1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> T
         for j, (img, spots_) in enumerate(zip(imgs, spots)):
             shapes = [dict(x=spot[0], y=spot[1], sigma=r, color='red')
                       for spot in spots_]
-            imgs[0].save(artifacts / f"spots{i:03d}_{j:03d}.png", shapes=shapes)
+            img.save(artifacts / f"spots{i:03d}_{j:03d}.png", shapes=shapes)
 
         num_spots += len(all_spots)
         # print("{} spots are detected in {} frames.".format(num_spots, len(imgs)))
@@ -134,11 +134,14 @@ def evaluation1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) ->
 
     rates = numpy.zeros(4, dtype=int)
 
+    import scopyon
+
     closest = []
     for true_npy_path in sorted(generation_artifacts.glob('true_data*.npy')):
         mobj = re.match('true_data(\d+).npy', true_npy_path.name)
         assert mobj is not None
         i = int(mobj.group(1))
+
         true_data_ = numpy.load(true_npy_path)
         t = true_data_[0, 0]
         true_data = [[true_data_[0, 1: ]]]
@@ -187,6 +190,16 @@ def evaluation1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) ->
                     rates[2] += 1
                 else:
                     rates[3] += 1
+
+        imgs = [scopyon.Image(data) for data in numpy.load(generation_artifacts / f'images{i:03d}.npy')]
+
+        r = 6
+        for j, (img, spots_, true_data_) in enumerate(zip(imgs, spots, true_data)):
+            shapes = [dict(x=spot[0], y=spot[1], sigma=r, color='green')
+                       for spot in true_data_[:, 3: 5]]
+            shapes += [dict(x=spot[0], y=spot[1], sigma=r, color='red')
+                      for spot in spots_]
+            img.save(artifacts / f"spots{i:03d}_{j:03d}.png", shapes=shapes)
 
     closest = numpy.asarray(closest).T
 
