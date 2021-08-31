@@ -64,15 +64,17 @@ def run_rule(
         run_name, config, inputs=(), idx=None, persistent=False, rootpath='.', client=None,
         expand=True, use_cache=True, ignore_tags=False):
     target = get_rule(config[run_name] if idx is None else config[run_name][idx], config)
-    return __run_rule(
+    run_id = __run_rule(
         target, run_name, config, inputs, persistent, rootpath, client, expand, use_cache, ignore_tags)
+    return client.get_run(run_id)
 
 def __run_rule(
         target, run_name, config, inputs=(), persistent=False, rootpath='.', client=None,
         expand=True, use_cache=True, ignore_tags=False,
-        nested=False, input_paths=None, output_path=None):
+        nested=False, input_paths=None, output_path=None, previous_run_id=None):
     assert client is not None or len(inputs) == 0
     assert not nested or (input_paths is not None and output_path is not None)
+    assert nested or (previous_run_id is None)
 
     if 'function' in target:
         func_name = target["function"]
@@ -83,28 +85,30 @@ def __run_rule(
         print(f'params = "{params}"')
         all_params = params.copy()
         assert 'function' not in all_params
-        all_params['function'] = target['function']
+        all_params['_function'] = target['function']
     else:
         assert 'children' in target
-
         params = {}
         all_params = {}
-        all_params['function'] = str([child['function'] for child in target['children']])
+        all_params['_function'] = str([child['function'] for child in target['children']])
         for child in target['children']:
             for key, value in child['params'].items():
                 if key in all_params:
                     assert value == all_params[key]
                 else:
                     all_params[key] = value
+    if previous_run_id is not None:
+        all_params['_previous'] = previous_run_id
     for i, run_id in enumerate(inputs):
-        key = f'inputs{i}'
+        key = f'_inputs{i}'
         assert key not in all_params
         all_params[key] = run_id
 
     if expand:
         for run_id in inputs:
             for key, value in client.get_run(run_id).data.params.items():
-                if key == 'function' or re.match('inputs\d+', key) is not None:
+                # if key == 'function' or re.match('inputs\d+', key) is not None or key == 'previous':
+                if key.startswith('_'):
                     continue
                 elif key in all_params:
                     assert value == str(all_params[key])
@@ -117,7 +121,7 @@ def __run_rule(
         if run is not None:
             if nested:
                 download_artifacts(client, run.info.run_id, dst_path=output_path, exist_ok=True)
-            return run
+            return run.info.run_id
 
     with mlflow.start_run(run_name=run_name, nested=nested) as run:
         print(mlflow.get_artifact_uri())
@@ -142,18 +146,23 @@ def __run_rule(
                     print(f'metrics = "{metrics}"')
                     log_artifacts(artifacts.replace("file://", ""))
                 else:
+                    previous_run_id = None
                     metrics = {}
                     for child in target['children']:
-                        child_run = __run_rule(
+                        child_run_id = __run_rule(
                             child, run_name, config, inputs, persistent, rootpath,
                             client, expand, use_cache, ignore_tags,
-                            nested=True, input_paths=input_paths, output_path=output_path)
-                        metrics.update(child_run.data.metrics)
+                            nested=True, input_paths=input_paths, output_path=output_path,
+                            previous_run_id=previous_run_id)
+                        previous_run_id = child_run_id
+                        metrics.update(client.get_run(child_run_id).data.metrics)
                         print(f'metrics = "{metrics}"')
 
                     log_artifacts(output_path.absolute().as_uri().replace("file://", ""))
         else:
             artifacts, metrics = func(input_paths, output_path, params)
+            print(f'artifacts = "{artifacts}"')
+            print(f'metrics = "{metrics}"')
             log_artifacts(artifacts.replace("file://", ""))
 
         if expand:
@@ -169,7 +178,7 @@ def __run_rule(
 
     if run is None:
         print('Something wrong at "{run_name}"')
-    return run
+    return run.info.run_id
 
 from mlflow.utils import mlflow_tags
 from mlflow.entities import RunStatus

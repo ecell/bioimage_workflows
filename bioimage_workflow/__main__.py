@@ -7,7 +7,7 @@ from .toml import read_toml
 from .utils import run_rule
 
 
-def main(filename, tracking_uri, rootpath, persistent, use_cache, ignore_tags):
+def main(filename, tracking_uri, rootpath, persistent, use_cache, ignore_tags, expand):
     print(f'filename = {filename}')
     config = read_toml(filename)
     expr_name = config["experiment"]
@@ -25,7 +25,8 @@ def main(filename, tracking_uri, rootpath, persistent, use_cache, ignore_tags):
     client = MlflowClient()
 
     run_opts = dict(
-        persistent=persistent, rootpath=rootpath, client=client, use_cache=use_cache, ignore_tags=ignore_tags)
+        persistent=persistent, rootpath=rootpath, client=client, use_cache=use_cache, ignore_tags=ignore_tags,
+        expand=expand)
 
     #XXX: generation
     generation = [
@@ -60,6 +61,8 @@ if __name__ == "__main__":
     parser.add_argument(
         '-p', '--persistent', action='store_true', help='Stop removing temporal aritfact directories')
     parser.add_argument(
+        '-x', '--expand', action='store_true', help='Expand parameters')
+    parser.add_argument(
         '--no-cache', action='store_true', help='Never skip even when the same run has been already run')
     parser.add_argument(
         '--ignore-tags', action='store_true', help='Ignore tags except for run_name when comparing runs')
@@ -71,12 +74,13 @@ if __name__ == "__main__":
     persistent = args.persistent
     use_cache = not args.no_cache
     ignore_tags = args.ignore_tags
+    expand = args.expand
 
     rootpath = pathlib.Path(args.output)
     rootpath.mkdir(parents=True, exist_ok=True)
 
     if len(args.inputs) == 0:
-        main('config.toml', tracking_uri, rootpath, persistent, use_cache, ignore_tags)
+        main('config.toml', tracking_uri, rootpath, persistent, use_cache, ignore_tags, expand)
     else:
         for filename in args.inputs:
-            main(filename, tracking_uri, rootpath, persistent, use_cache, ignore_tags)
+            main(filename, tracking_uri, rootpath, persistent, use_cache, ignore_tags, expand)
