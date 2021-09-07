@@ -22,6 +22,6 @@ export MLFLOW_TRACKING_URI="http://0.0.0.0:50000/"
 ```
 git clone https://github.com/ecell/bioimage_workflows
 cd bioimage_workflows
-git checkout -t origin/nocode
+git checkout -t origin/develop
 python -m bioimage_wokflow
 ```
