@@ -15,7 +15,7 @@ pip install -U pip
 pip install mlflow toml scikit-image plotly kaleido azure-storage-blob
 pip install git+git://github.com/ecell/scopyon.git@99436fbfd34bb684966846eba75b206c2806f69c
 export AZURE_STORAGE_CONNECTION_STRING="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-export MLFLOW_TRACKING_URI="http://0.0.0.0:5000/"
+export MLFLOW_TRACKING_URI="http://**.**.**.**:5000/"
 ```
 
 # Running experiment (localhost)
