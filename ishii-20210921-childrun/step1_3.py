@@ -19,7 +19,10 @@ def step1_3(client,step1_x,step2_y,step3_z):
         log_param("step1_x", step1_x)
         log_param("step2_y", step2_y)
         log_param("step3_z", step3_z)
-        all_params={"step1_x":step1_x,"step2_y":step2_y,"step3_z":step3_z}
+        result_step1 = 0
+        result_step2 = 0
+        result_step3 = 0
+
         with mlflow.start_run(run_name='CHILD_RUN1', nested=True) as child_run:
             past_run=utils.check_if_already_ran(client, "CHILD_RUN1",{"step1_x":step1_x},ignore_tags=False)
             if past_run is None:
@@ -94,6 +97,10 @@ def step1_3(client,step1_x,step2_y,step3_z):
                 # TODO copy timestamp ?
                 # TODO copy artifact
                 result_step3 = float(metrics["result_step3"])
+        log_metric("result_step1", result_step1)
+        log_metric("result_step2", result_step2)
+        log_metric("result_step3", result_step3)
+        
 
 
 
