@@ -15,8 +15,13 @@ if __name__ == "__main__":
     #     print("---")
     #     print(run)
     print("CHILD_RUN1")
-    params= {"step1_x":2,"step2_y":3}
-    utils.check_if_already_ran(client, "CHILD_RUN1",params,ignore_tags=False)
+    params= {"step1_x":2,"step2_y":3,"step3_z":5}
+    run=utils.check_if_already_ran(client, "CHILD_RUN1",params,ignore_tags=False)
+    print(run)
     print("CHILD_RUN2")
-    utils.check_if_already_ran(client, "CHILD_RUN2",params,ignore_tags=False)
+    run=utils.check_if_already_ran(client, "CHILD_RUN2",params,ignore_tags=False)
+    print(run)
+    print("CHILD_RUN3")
+    run=utils.check_if_already_ran(client, "CHILD_RUN3",params,ignore_tags=False)
+    print(run)
 
