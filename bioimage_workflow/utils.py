@@ -69,34 +69,33 @@ def run_rule(
     return client.get_run(run_id)
 
 def __run_rule(
-        target, run_name, config, inputs=(), persistent=False, rootpath='.', client=None,
+        target, run_name, config, run_opts, inputs=(), persistent=False, rootpath='.', client=None,
         expand=True, use_cache=True, ignore_tags=False,
         nested=False, input_paths=None, output_path=None, previous_run_id=None):
     assert client is not None or len(inputs) == 0
     assert not nested or (input_paths is not None and output_path is not None)
     assert nested or (previous_run_id is None)
 
-    if 'function' in target:
-        func_name = target["function"]
-        print(f'run_name = "{run_name}", func_name = "{func_name}"')
-        func = get_function(func_name)
+    # if 'function' in target:
+    #     func_name = target["function"]
+    #     print(f'run_name = "{run_name}", func_name = "{func_name}"')
+    #     func = get_function(func_name)
 
-        params = target["params"]
-        print(f'params = "{params}"')
-        all_params = params.copy()
-        assert 'function' not in all_params
-        all_params['_function'] = target['function']
-    else:
-        assert 'children' in target
-        params = {}
-        all_params = {}
-        all_params['_function'] = str([child['function'] for child in target['children']])
-        for child in target['children']:
-            for key, value in child['params'].items():
-                if key in all_params:
-                    assert value == all_params[key]
-                else:
-                    all_params[key] = value
+    #     params = target["params"]
+    #     print(f'params = "{params}"')
+    #     all_params = params.copy()
+    #     assert 'function' not in all_params
+    #     all_params['_function'] = target['function']
+    func_name = target
+    print(f'run_name = "{run_name}", func_name = "{func_name}"')
+    func = get_function(func_name)
+    print(func)
+    params = run_opts.copy()
+    print(f'params = "{params}"')
+    all_params = params.copy()
+    assert 'function' not in all_params
+    all_params['_function'] = target
+
     if previous_run_id is not None:
         all_params['_previous'] = previous_run_id
     for i, run_id in enumerate(inputs):
