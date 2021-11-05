@@ -21,4 +21,10 @@ experiment:
         [0.5, 0.0, 0.2],
         [0.0, 1.0, 0.0]]
   analysis:
-    
+    function: "user_functions.analysis1"
+    params:
+      max_sigma: 4
+      min_sigma: 1
+      threshold: 50.0
+      overlap: 0.5
+  
