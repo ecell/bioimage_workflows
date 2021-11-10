@@ -25,3 +25,7 @@ cd bioimage_workflows
 git checkout -t origin/develop
 python -m bioimage_workflow
 ```
+
+```
+MLFLOW_TRACKING_URI=file:$HOME/t1/bioimage_workflows/mlruns PYTHONPATH=. python -m bioimage_workflow
+```
