@@ -214,7 +214,9 @@ def check_if_already_ran(client, run_name, params, experiment_id=None, ignore_ta
             match_failed = match_failed or (tags.get(mlflow_tags.MLFLOW_RUN_NAME, None) != run_name)
 
         for key, value in params.items():
-            if str(value) != str(full_run.data.params.get(key)):
+            if key == 'client':
+                continue
+            elif str(value) != str(full_run.data.params.get(key)):
                 match_failed = True
                 break
 
