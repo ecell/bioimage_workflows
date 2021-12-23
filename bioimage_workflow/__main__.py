@@ -34,7 +34,8 @@ def main(cfg: DictConfig):
 
     #mlflow.set_tracking_uri(tracking_uri)
     #mlflow.set_tracking_uri("/home/azureuser/bioimage_workflows/outputs/2021-11-05/05-12-27/mlruns/1")
-    mlflow.set_tracking_uri("./hoge/mlruns/")
+    #mlflow.set_tracking_uri("./hoge/mlruns/")
+    mlflow.set_tracking_uri("http://localhost:5000/")
     tracking_uri = mlflow.get_tracking_uri()
 
     print("Current tracking uri: {}".format(tracking_uri))
@@ -63,7 +64,7 @@ def main(cfg: DictConfig):
 #         expand=True, use_cache=True, ignore_tags=False,
 #         nested=False, input_paths=None, output_path=None, previous_run_id=None):
     # MEMO: inputs is ()
-    #generation = [ __run_rule(target="user_functions.generation1",run_name="generation",config=(),client=client,run_opts=run_opts,persistent=False, rootpath='.',expand=False, use_cache=True, ignore_tags=False)]
+    generation = [ __run_rule(target="user_functions.generation1",run_name="generation",config=(),client=client,run_opts=run_opts,persistent=False, rootpath='.',expand=False, use_cache=True, ignore_tags=False)]
 
 
 #    if 'analysis' not in config:
@@ -72,22 +73,32 @@ def main(cfg: DictConfig):
     #XXX: analysis
     analysis = []
     #artifacts_path =["f4c1e9666d414ebfa64ad483ad7c7e3b"]
-    artifacts_path =["4f2b11afac7e480482fb76add593ffba"]
+    artifacts_path = generation
 
-    analysis = [ __run_rule(target="user_functions.analysis1",run_name="analysis",config=(),client=client,run_opts=run_opts,persistent=False, rootpath='.',expand=False, use_cache=True, ignore_tags=False, inputs=artifacts_path)]
+    run_opts["min_sigma"] = cfg.experiment.analysis.params.min_sigma
+    run_opts["max_sigma"] = cfg.experiment.analysis.params.max_sigma
+    run_opts["threshold"] = cfg.experiment.analysis.params.threshold
+    run_opts["overlap"] = cfg.experiment.analysis.params.overlap
+
+    analysis = [ __run_rule(target="user_functions.analysis1",run_name="analysis",config=(),client=client,run_opts=run_opts,persistent=False, rootpath='.',expand=False, use_cache=True, ignore_tags=False, inputs=generation)]
 
 #    for idx in range(len(config['analysis'])):
 #        for inputs in generation:
 #            run = run_rule('analysis', config, inputs=inputs, idx=idx, **run_opts)
 #            analysis.append(inputs + (run.info.run_id, ))
 
-    if 'evaluation' not in config:
-        return
+    # for evaluation
+    # set analysis in artifacts_path 
+    artifacts_path = analysis
+    run_opts["max_distance"] = cfg.experiment.evaluation.params.max_distance
+    evaluation = [ __run_rule(target="user_functions.evaluation1",run_name="evaluation",config=(),client=client,run_opts=run_opts,persistent=False, rootpath='.',expand=False, use_cache=True, ignore_tags=False, inputs=analysis)]
+    #if 'evaluation' not in config:
+    #    return
 
     #XXX: evaluation
-    for idx in range(len(config['evaluation'])):
-        for inputs in analysis:
-            run = run_rule('evaluation', config, inputs=inputs, idx=idx, **run_opts)
+#   for idx in range(len(config['evaluation'])):
+#        for inputs in analysis:
+#            run = run_rule('evaluation', config, inputs=inputs, idx=idx, **run_opts)
 
 if __name__ == "__main__":
     main()
