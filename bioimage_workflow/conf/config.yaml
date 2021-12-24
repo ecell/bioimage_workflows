@@ -1,3 +1,8 @@
+hydra:
+  output_subdir: null
+  run:
+    dir: "."
+
 experiment:
   name: "exp1"
   tracking_uri: "http://localhost:5000"
@@ -5,7 +10,7 @@ experiment:
   persistent: False
   use_cache: True
   ignore_tags: False
-  expand: False
+  expand: True
   generation:
     function: "user_functions.generation1"
     params:
