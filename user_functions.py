@@ -74,7 +74,7 @@ def analysis1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> T
     max_sigma = params["max_sigma"]
     threshold = params["threshold"]
     overlap = params["overlap"]
-
+    print(f"DEBUG info min_sigma={min_sigma}, max_sigma={max_sigma}, threshold={threshold}, overlap={overlap}")
     generation_artifacts = inputs[0]
     artifacts = output
 
@@ -120,12 +120,18 @@ def analysis1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> T
     return artifacts.absolute().as_uri(), metrics
 
 def evaluation1(inputs: Tuple[PathLike, ...], output: PathLike, params: dict) -> Tuple[str, dict]:
-    assert len(inputs) == 2
+    #assert len(inputs) == 2
+    print(inputs)
+    print(params)
 
     max_distance = params["max_distance"]
 
+    # generation_artifacts requires generation1's output 
     generation_artifacts = inputs[0]
+    print(f"DEBUG info generation_artifacts={generation_artifacts}")
+    # analysis_artifacts requires analysis1's output
     analysis_artifacts = inputs[1]
+    print(f"DEBUG info analysis_artifacts={analysis_artifacts}")
     artifacts = output
 
     #XXX: HERE
