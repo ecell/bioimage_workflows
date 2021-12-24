@@ -7,7 +7,7 @@ mlflow server --host 0.0.0.0 --default-artifact-root wasbs://XXXXX@YYYYY.blob.co
 
 # Setup (localhost)
 ```
-sudo apt install python3-pip python3-venv
+sudo apt install python3-venv
 cd ~
 python3 -m venv venv-ecell
 source venv-ecell/bin/activate
