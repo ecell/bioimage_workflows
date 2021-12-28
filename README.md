@@ -30,4 +30,4 @@ python -m bioimage_workflow experiment.generation.params.Nm="[10,10,10],[100,100
 ```
 
 # Browsing the DWH
-Open `http://THE_LOCAL_HOST_IP:5000`
+Open `http://THE_TRACKING_SERVER_IP:5000`
