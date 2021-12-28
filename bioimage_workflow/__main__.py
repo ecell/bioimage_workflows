@@ -7,7 +7,7 @@ from .utils import run_rule, __run_rule
 
 import hydra
 from omegaconf import DictConfig, OmegaConf
-
+import hydra.utils
 
 @hydra.main(config_path="conf", config_name="config")
 def main(cfg: DictConfig):
@@ -34,6 +34,7 @@ def main(cfg: DictConfig):
     #mlflow.set_tracking_uri(tracking_uri)
     #mlflow.set_tracking_uri("/home/azureuser/bioimage_workflows/outputs/2021-11-05/05-12-27/mlruns/1")
     #mlflow.set_tracking_uri("./hoge/mlruns/")
+    mlflow.set_tracking_uri('file://' + hydra.utils.get_original_cwd() + '/mlruns')
     tracking_uri = mlflow.get_tracking_uri()
 
     print("Current tracking uri: {}".format(tracking_uri))
@@ -49,8 +50,12 @@ def main(cfg: DictConfig):
     #     persistent=persistent, rootpath=rootpath, client=client, use_cache=use_cache, ignore_tags=ignore_tags,
     #     expand=expand)
 
+    print("============================")
+    print(cfg.experiment.use_cache)
+    print("============================")
+
     run_opts = dict(
-        persistent=cfg.experiment.persistent, rootpath=cfg.experiment.rootpath, client=client, use_cache=cfg.experiment.use_cache, ignore_tags=cfg.experiment.ignore_tags,
+        persistent=cfg.experiment.persistent, rootpath=cfg.experiment.rootpath, use_cache=cfg.experiment.use_cache, ignore_tags=cfg.experiment.ignore_tags,
         expand=cfg.experiment.expand,seed=cfg.experiment.generation.params.seed,interval=cfg.experiment.generation.params.interval,num_samples=cfg.experiment.generation.params.num_samples,num_frames=cfg.experiment.generation.params.num_frames,exposure_time=cfg.experiment.generation.params.exposure_time,Nm=cfg.experiment.generation.params.Nm,Dm=cfg.experiment.generation.params.Dm,transmat=cfg.experiment.generation.params.transmat)
 
     #XXX: generation
@@ -62,7 +67,7 @@ def main(cfg: DictConfig):
 #         expand=True, use_cache=True, ignore_tags=False,
 #         nested=False, input_paths=None, output_path=None, previous_run_id=None):
     # MEMO: inputs is ()
-    generation = [ __run_rule(target="user_functions.generation1",run_name="generation",config=(),client=client,run_opts=run_opts,persistent=False, rootpath='.',expand=True, use_cache=True, ignore_tags=False)]
+    generation = [ __run_rule(target="user_functions.generation1",run_name="generation",config=(),client=client,run_opts=run_opts,persistent=False, rootpath='.',expand=True, use_cache=True, ignore_tags=True)]
 
 
 #    if 'analysis' not in config:

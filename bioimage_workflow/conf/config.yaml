@@ -9,7 +9,7 @@ experiment:
   rootpath: "artifacts"
   persistent: False
   use_cache: True
-  ignore_tags: False
+  ignore_tags: True
   expand: True
   generation:
     function: "user_functions.generation1"
@@ -35,5 +35,5 @@ experiment:
   evaluation:
     function: "user_functions.evaluation1"
     params:
-      max_distance: 5.0
+      max_distance: 6.0
   
