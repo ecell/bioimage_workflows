@@ -16,8 +16,9 @@ pip install mlflow hydra-core scikit-image plotly kaleido azure-storage-blob
 pip install git+git://github.com/ecell/scopyon.git@99436fbfd34bb684966846eba75b206c2806f69c
 ```
 
-# Setup (mlflow server)
+# Running mlflow tracking server
 ```
+cd ~/bioimage_workflows
 mlflow server --host 0.0.0.0
 ```
 
