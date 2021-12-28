@@ -31,5 +31,5 @@ python -m bioimage_workflow experiment.analysis.params.overlap="range(0.1,1,0.4)
 python -m bioimage_workflow experiment.generation.params.Nm="[10,10,10],[100,100,100]" --multirun
 ```
 
-# Browsing the DWH
+# Browsing mlflow tracking server
 Open `http://THE_TRACKING_SERVER_IP:5000`
