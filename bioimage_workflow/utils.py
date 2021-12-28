@@ -102,6 +102,8 @@ def __run_rule(
         key = f'_inputs{i}'
         assert key not in all_params
         all_params[key] = run_id
+        prev_run_name = client.get_run(run_id).data.tags.get(mlflow_tags.MLFLOW_RUN_NAME)
+        all_params[prev_run_name+"_run_id"] = run_id
 
     if expand:
         for run_id in inputs:
