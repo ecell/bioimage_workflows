@@ -35,5 +35,5 @@ experiment:
   evaluation:
     function: "user_functions.evaluation1"
     params:
-      max_distance: 6.0
-  
+      max_distance: 5.0
+      
