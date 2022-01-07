@@ -5,7 +5,6 @@ hydra:
 
 experiment:
   name: "exp1"
-  tracking_uri: "http://localhost:5000"
   rootpath: "artifacts"
   persistent: False
   use_cache: True
