@@ -1,4 +1,5 @@
 import pathlib
+import os
 
 import mlflow
 from mlflow.tracking import MlflowClient
@@ -14,8 +15,9 @@ def main(cfg: DictConfig):
     expr_name = cfg.experiment.name
     print(f'experiment = {expr_name}')
     print(cfg)
-    # set_tracking_uri is important for hydra and mlflow integration.
-    mlflow.set_tracking_uri('file://' + hydra.utils.get_original_cwd() + '/mlruns')
+    if os.environ.get("MLFLOW_TRACKING_URI") is None:
+        # set_tracking_uri is important for hydra and mlflow integration. if it is local
+        mlflow.set_tracking_uri('file://' + hydra.utils.get_original_cwd() + '/mlruns')
     tracking_uri = mlflow.get_tracking_uri()
     print("Current tracking uri: {}".format(tracking_uri))
     if mlflow.get_experiment_by_name(expr_name) is None:
