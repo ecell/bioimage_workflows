@@ -14,8 +14,9 @@ cd ~
 python3 -m venv venv-ecell
 source ~/venv-ecell/bin/activate
 pip install wheel
-pip install mlflow hydra-core scikit-image plotly kaleido azure-storage-blob
-pip install git+git://github.com/ecell/scopyon.git@99436fbfd34bb684966846eba75b206c2806f69c
+pip install mlflow==1.30.0 hmmlearn==0.2.6 hydra-core scikit-image plotly kaleido azure-storage-blob
+pip install git+https://github.com/ecell/scopyon.git@99436fbfd34bb684966846eba75b206c2806f69c
+pip install optuna protobuf==3.20.3
 ```
 
 # Running mlflow tracking server
