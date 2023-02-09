@@ -28,8 +28,7 @@ mlflow server --host 0.0.0.0
 # Running experiment
 ```
 cd ~/bioimage_workflows
-python -m bioimage_workflow experiment.analysis.params.overlap="range(0.1,1,0.4)" experiment.analysis.params.threshold=40,50 experiment.evaluation.params.max_distance=5.0,6.0,7.0 --multirun
-python -m bioimage_workflow experiment.generation.params.Nm="[10,10,10],[100,100,100]" --multirun
+python analysis_evaluation.py
 ```
 
 # Browsing mlflow tracking server
