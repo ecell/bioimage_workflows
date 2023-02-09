@@ -33,3 +33,9 @@ python analysis_evaluation.py
 
 # Browsing mlflow tracking server
 Open `http://THE_TRACKING_SERVER_IP:5000`
+
+# Browsing optuna-dashboard
+
+```
+optuna-dashboard sqlite:///example2.db --port 5050 --host 0.0.0.0
+```
