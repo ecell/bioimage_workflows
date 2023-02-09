@@ -82,7 +82,7 @@ def objective(trial):
         # End analysis run
         # mlflow.end_run()
     
-    ## call generation
+    ## call evaluation
     # output
     evaluation_output=Path('./outputs_evaluation_run/'+str(trial.number))
     evaluation_output.mkdir(parents=True, exist_ok=True)
@@ -122,7 +122,7 @@ def main():
     # print(a)
     # print(b)
     # Execute Optuna MLFlow
-    study = optuna.create_study(study_name="test_x_y_mean_4")
+    study = optuna.create_study(storage="sqlite:///example.db", study_name="test_x_y_mean_storage_5", load_if_exists=True)
     study.optimize(objective, n_trials=10, callbacks=[mlflc])
     print(study.best_params)
 
