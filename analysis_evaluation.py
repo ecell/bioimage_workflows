@@ -14,6 +14,9 @@ import mlflow
 from optuna.integration.mlflow import MLflowCallback
 from user_functions import generation1, analysis1, evaluation1
 from pathlib import Path
+from mlflow import MlflowClient
+from bioimage_workflow.utils import check_if_already_ran
+import sys
 
 mlflc = MLflowCallback(
     tracking_uri="http://127.0.0.1:5000",
@@ -52,13 +55,40 @@ evaluation_params = {
 @mlflc.track_in_mlflow()
 def objective(trial):
     # variables for analysis.
-    global analysis_params, evaluation_params
+    global generation_params, analysis_params, evaluation_params
+
+    client = MlflowClient(tracking_uri="http://127.0.0.1:5000")
+    # print("--- cleint")
+    # print(dir(client))
+    # from mlflow.tracking.fluent import _get_experiment_id
+    # experiment_id = _get_experiment_id()
+    # print(experiment_id)
+    # all_run_infos = reversed(client.list_run_infos(experiment_id))
+    # print(all_run_infos)
+    # for ru in all_run_infos:
+    #     print(ru)
+
+
+    ## NOTE: ignore_tags is False, so name is not checked, it checks only params
+    generation_output=Path('./outputs20230210/generation1')
+    run=check_if_already_ran(client,"", generation_params)
+    print(run)
+    if run is None:
+        # Exec generation
+        with mlflow.start_run(nested=True, run_name="generation_"+str(trial.number)) as run_analysis:
+            artifacts,metrics = generation1([], generation_output, generation_params)
+            for key, value in generation_params.items():
+                mlflow.log_param(key, value)
+            #
+            mlflow.log_artifacts('./outputs20230210/generation1')
+    # sys.exit()
+
     # print()
     # print(dir(trial))
     # exit()
     # call analysis
     # input
-    generation_output=Path('./outputs_generation')
+    # generation_output=Path('./outputs_generation')
     # analysis output
     # create new dir, use trial.number
     analysis_output=Path('./outputs_analysis_run/'+str(trial.number))
@@ -122,9 +152,15 @@ def main():
     # print(a)
     # print(b)
     # Execute Optuna MLFlow
-    study = optuna.create_study(storage="sqlite:///example.db", study_name="test_x_y_mean_storage_5", load_if_exists=True)
-    study.optimize(objective, n_trials=10, callbacks=[mlflc])
+    study = optuna.create_study(storage="sqlite:///example2.db", study_name="test_x_y_mean_storage_6", load_if_exists=True, sampler=optuna.samplers.CmaEsSampler())
+    # print("--- study")
+    # print(dir(study))
+    study.optimize(objective, n_trials=5, callbacks=[mlflc])
     print(study.best_params)
+    # ここで別のexperimentにoptuna記録するという方法もある。
+
+# print("--- mlflc")
+# print(dir(mlflc))
 
 if __name__ == "__main__":
     main()
