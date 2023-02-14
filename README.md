@@ -20,9 +20,20 @@ pip install optuna==3.0.5 protobuf==3.20.3 optuna-dashboard==0.8.1
 ```
 
 # Running mlflow tracking server
+
+## Command Line
 ```
 cd ~/bioimage_workflows
 mlflow server --host 0.0.0.0
+```
+
+## Docker
+
+If you want to use NAS or other storage, change `$HOME/mlflowbackend` to your strorage path.
+
+```
+mkdir $HOME/mlflowbackend
+docker run --rm --user $UID:1000 -p 5000:5000  -v $HOME/mlflowbackend:/backend ghcr.io/mlflow/mlflow:v1.30.0 mlflow server --host 0.0.0.0 --backend-store-uri sqlite:////backend/tracking.db --artifacts-destination file:///backend/artifacts --serve-artifacts
 ```
 
 # Running experiment
