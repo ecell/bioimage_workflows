@@ -52,10 +52,14 @@ evaluation_params = {
     "max_distance": 5.0
 }
 
+exposure_time=0
+
 @mlflc.track_in_mlflow()
 def objective(trial):
     # variables for analysis.
-    global generation_params, analysis_params, evaluation_params
+    global generation_params, analysis_params, evaluation_params, exposure_time
+
+    generation_params["exposure_time"] = exposure_time
 
     client = MlflowClient(tracking_uri="http://127.0.0.1:5000")
     # print("--- cleint")
@@ -70,17 +74,28 @@ def objective(trial):
 
 
     ## NOTE: ignore_tags is False, so name is not checked, it checks only params
-    generation_output=Path('./outputs20230210/generation1')
+    local_artifacts_dir="./artifacts/"
     run=check_if_already_ran(client,"", generation_params)
-    print(run)
     if run is None:
         # Exec generation
         with mlflow.start_run(nested=True, run_name="generation_"+str(trial.number)) as run_analysis:
+            generation_output=Path(local_artifacts_dir+'/'+run_analysis.info.run_id)
+            print(str(generation_output))
+            if not generation_output.exists():
+                generation_output.mkdir(parents=True, exist_ok=True)
+
             artifacts,metrics = generation1([], generation_output, generation_params)
             for key, value in generation_params.items():
                 mlflow.log_param(key, value)
             #
-            mlflow.log_artifacts('./outputs20230210/generation1')
+            mlflow.log_artifacts(str(generation_output))
+    else:
+        #
+        generation_output=Path(local_artifacts_dir+'/'+run.info.run_id)
+        if not generation_output.exists():
+            generation_output.mkdir(parents=True, exist_ok=True)
+            client.download_artifacts(run_id=run.info.run_id, path="", dst_path=str(generation_output))
+
     # sys.exit()
 
     # print()
@@ -141,7 +156,7 @@ def objective(trial):
 
 
 def main():
-    global generation_params,analysis_params
+    global generation_params,analysis_params, exposure_time
     # Setup for Optuna MLFlow
     # generation_output=Path('./outputs_generation')
     # generation1([], generation_output, generation_params)
@@ -155,8 +170,11 @@ def main():
     study = optuna.create_study(storage="sqlite:///example2.db", study_name="test_x_y_mean_storage_6", load_if_exists=True, sampler=optuna.samplers.CmaEsSampler())
     # print("--- study")
     # print(dir(study))
-    study.optimize(objective, n_trials=5, callbacks=[mlflc])
-    print(study.best_params)
+    for i in range(5):
+        exposure_time=exposure_time+0.033
+        study.optimize(objective, n_trials=5, callbacks=[mlflc])
+        print(study.best_params)
+
     # ここで別のexperimentにoptuna記録するという方法もある。
 
 # print("--- mlflc")
