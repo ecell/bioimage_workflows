@@ -53,13 +53,15 @@ evaluation_params = {
 }
 
 exposure_time=0
+num_samples=1
 
 @mlflc.track_in_mlflow()
 def objective(trial):
     # variables for analysis.
-    global generation_params, analysis_params, evaluation_params, exposure_time
+    global generation_params, analysis_params, evaluation_params, exposure_time, num_samples
 
     generation_params["exposure_time"] = exposure_time
+    generation_params["num_samples"] = num_samples
 
     client = MlflowClient(tracking_uri="http://127.0.0.1:5000")
     # print("--- cleint")
@@ -156,7 +158,7 @@ def objective(trial):
 
 
 def main():
-    global generation_params,analysis_params, exposure_time
+    global generation_params,analysis_params, exposure_time, num_samples
     # Setup for Optuna MLFlow
     # generation_output=Path('./outputs_generation')
     # generation1([], generation_output, generation_params)
@@ -170,10 +172,12 @@ def main():
     study = optuna.create_study(storage="sqlite:///example2.db", study_name="test_x_y_mean_storage_6", load_if_exists=True, sampler=optuna.samplers.CmaEsSampler())
     # print("--- study")
     # print(dir(study))
-    for i in range(5):
-        exposure_time=exposure_time+0.033
-        study.optimize(objective, n_trials=5, callbacks=[mlflc])
-        print(study.best_params)
+    for j in range(1,6):
+        num_samples = j
+        for i in range(5):
+            exposure_time=exposure_time+0.033
+            study.optimize(objective, n_trials=5, callbacks=[mlflc])
+            print(study.best_params)
 
     # ここで別のexperimentにoptuna記録するという方法もある。
 
