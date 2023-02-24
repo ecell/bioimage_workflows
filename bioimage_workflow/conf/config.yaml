@@ -1,7 +1,22 @@
+defaults:
+  - override hydra/sweeper: optuna
+
 hydra:
-  output_subdir: null
+  # output_subdir: null
   run:
     dir: "."
+  sweeper:
+    # optuna_config:
+    sampler:
+      # _target_: optuna.samplers.RandomSampler
+      seed: 123
+    direction: minimize
+    # study_name: test_x_y_mean_storage_7_2.10.1
+    # storage: sqlite:///example.2.10.1-2.db
+    study_name: test_x_y_mean_storage_7_3.0.5
+    storage: sqlite:///example.3.0.5.db
+    n_trials: 5
+    n_jobs: 1
 
 experiment:
   name: "exp1"
