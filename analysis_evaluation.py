@@ -174,6 +174,7 @@ def main():
     # print(dir(study))
     for j in range(1,6):
         num_samples = j
+        exposure_time=0
         for i in range(5):
             exposure_time=exposure_time+0.033
             study.optimize(objective, n_trials=5, callbacks=[mlflc])
