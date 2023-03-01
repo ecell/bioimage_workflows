@@ -42,6 +42,12 @@ cd ~/bioimage_workflows
 python analysis_evaluation.py
 ```
 
+# Running experiment with hydra
+
+```
+MLFLOW_TRACKING_URI=http://127.0.0.1:5000 time python analysis_evaluation.py experiment.evaluation.params.max_distance="range(4,8)" experiment.analysis.params.overlap="range(0.1,1,0.4)" experiment.analysis.params.threshold=40,50  --multirun
+```
+
 # Browsing mlflow tracking server
 Open `http://THE_TRACKING_SERVER_IP:5000`
 
@@ -50,3 +56,4 @@ Open `http://THE_TRACKING_SERVER_IP:5000`
 ```
 optuna-dashboard sqlite:///example2.db --port 5050 --host 0.0.0.0
 ```
+
