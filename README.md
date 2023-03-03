@@ -37,6 +37,9 @@ docker run --rm --user $UID:1000 -p 5000:5000  -v $HOME/mlflowbackend:/backend g
 ```
 
 # Running experiment
+
+activate virtualenv
+
 ```
 cd ~/bioimage_workflows
 python analysis_evaluation.py
