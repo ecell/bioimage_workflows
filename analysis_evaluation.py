@@ -59,6 +59,7 @@ def objective(trial):
     # call analysis
     # input
     generation_output=Path('./outputs_generation')
+    generation_output.mkdir(parents=True, exist_ok=True)
     # analysis output
     # create new dir, use trial.number
     analysis_output=Path('./outputs_analysis_run/'+str(trial.number))
