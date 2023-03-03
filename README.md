@@ -3,7 +3,7 @@
 cd ~
 git clone https://github.com/ecell/bioimage_workflows
 cd bioimage_workflows
-git checkout -t origin/hydra
+git checkout -t origin/hydra_optuna_mlflow_ishii
 ```
 
 # Setup (pip install for Ubuntu 20.04)
