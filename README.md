@@ -3,7 +3,7 @@
 cd ~
 git clone https://github.com/ecell/bioimage_workflows
 cd bioimage_workflows
-git checkout -t origin/hydra
+git checkout -t origin/optuna_ishii_using_cache
 ```
 
 # Setup (pip install for Ubuntu 20.04)
