@@ -17,6 +17,7 @@ pip install wheel
 pip install mlflow==1.30.0 hmmlearn==0.2.6 hydra-core scikit-image plotly kaleido azure-storage-blob
 pip install git+https://github.com/ecell/scopyon.git@99436fbfd34bb684966846eba75b206c2806f69c
 pip install optuna==3.0.5 protobuf==3.20.3 optuna-dashboard==0.8.1
+pip install hydra-optuna-sweeper==1.2.0
 ```
 
 # Running mlflow tracking server
